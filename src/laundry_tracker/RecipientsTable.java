@@ -1,4 +1,4 @@
-package communication;
+package laundry_tracker;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;

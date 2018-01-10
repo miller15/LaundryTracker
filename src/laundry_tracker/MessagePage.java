@@ -1,4 +1,4 @@
-package communication;
+package laundry_tracker;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;

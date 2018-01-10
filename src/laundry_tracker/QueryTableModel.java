@@ -1,4 +1,4 @@
-package communication;
+package laundry_tracker;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
