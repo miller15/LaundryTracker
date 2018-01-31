@@ -26,7 +26,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
 
-public class MessagePage extends JFrame {
+public class cMainDashboardWindow extends JFrame {
 
 	/**
 	 * 
@@ -46,7 +46,7 @@ public class MessagePage extends JFrame {
 	private static JTextField txtSubject;
 	private static JTextArea txtareaMessage;
 	private static String currUser;
-	private static RecipientsTable tableContentPane;
+	private static dViewAllClientsWindow tableContentPane;
 	/**
 	 * Launch the application.
 	 */
@@ -54,7 +54,7 @@ public class MessagePage extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					MessagePage frame = new MessagePage();
+					cMainDashboardWindow frame = new cMainDashboardWindow();
 					frame.setVisible(true);
 					
 				} catch (Exception e) {
@@ -72,7 +72,7 @@ public class MessagePage extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					MessagePage frame = new MessagePage();
+					cMainDashboardWindow frame = new cMainDashboardWindow();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -81,7 +81,7 @@ public class MessagePage extends JFrame {
 		});
 	}
 	
-	public MessagePage() {
+	public cMainDashboardWindow() {
 		setTitle("Setup your message");
 		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 520, 395);
@@ -124,11 +124,11 @@ public class MessagePage extends JFrame {
 		JFrame tableFrame = new JFrame("recipientsFrame");
 		//tableFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		tableContentPane = new RecipientsTable();
+		tableContentPane = new dViewAllClientsWindow();
 		tableContentPane.setOpaque(true);
 		tableFrame.setContentPane(tableContentPane);
 		
-		tabbedPane.add("Recipients2", tableContentPane);
+		//tabbedPane.add("Recipients2", tableContentPane);
 				
 		tabbedPane.add("Create Contacts", createContacts);
 		GridBagLayout gbl_createContacts = new GridBagLayout();
@@ -378,9 +378,9 @@ public class MessagePage extends JFrame {
 			private void addContact(String fName, String lName, String email, String team, String subTeam1, String position1, String position2, String subTeam2, String position3, String position4) {
 				// TODO Auto-generated method stub
 				boolean success;
-				currUser = MainWindow.getCurrUser();
-				System.out.println("Current User from MessagePage class: " + currUser);
-				success = DatabaseHandler.addContact(fName, lName, email, team, subTeam1, position1, position2, subTeam2, position3, position4, currUser);
+				currUser = bWelcomeScreenWindow.getCurrUser();
+				System.out.println("Current User from cMainDashboardWindow class: " + currUser);
+				success = zDatabaseHandlerBackend.addContact(fName, lName, email, team, subTeam1, position1, position2, subTeam2, position3, position4, currUser);
 				if(success){
 					txtFname.setText("");
 					txtLname.setText("");
@@ -427,7 +427,7 @@ public class MessagePage extends JFrame {
 				//String username = JOptionPane.showInputDialog("Please enter your email username: ");
 				String password = JOptionPane.showInputDialog("Please enter your email password: ");
 				//System.out.println(username);
-				SendEmail.setupAndSend(subject, body, from, password, toArray, username);				
+				zzzzzzzzSendEmailBackend.setupAndSend(subject, body, from, password, toArray, username);				
 			}
 		});
 */		recipientsPane.setLayout(null);
@@ -455,12 +455,12 @@ public class MessagePage extends JFrame {
 		String userName = userNameArray[0];
 		String password = JOptionPane.showInputDialog("Please enter your email account password: ");
 		System.out.println("");
-		System.out.println("MessagePage.java: sendMessage: ");
+		System.out.println("cMainDashboardWindow.java: sendMessage: ");
 		for(int i=0; i<recipients.length; i++){
 			System.out.println(recipients[i]);
 		}
 		System.out.println("");
-		SendEmail.setupAndSend(subject, body, ownerEmail, password, recipients, userName);
+		zzzzzzzzSendEmailBackend.setupAndSend(subject, body, ownerEmail, password, recipients, userName);
 	}
 	
 	private static void show_error(String title, Object message)

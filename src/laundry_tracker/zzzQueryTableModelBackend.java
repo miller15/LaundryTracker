@@ -8,7 +8,7 @@ import java.util.Vector;
 import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
-public class QueryTableModel extends AbstractTableModel{
+public class zzzQueryTableModelBackend extends AbstractTableModel{
 
 	/**
 	 * 
@@ -19,7 +19,7 @@ public class QueryTableModel extends AbstractTableModel{
 /*	private static String driver = "com.mysql.jdbc.Driver";
 	Connection db;
 */	
-	public QueryTableModel() {
+	public zzzQueryTableModelBackend() {
 	    results = new Vector();
 	    
 	    /*new org.postgresql.Driver();
@@ -37,7 +37,7 @@ public class QueryTableModel extends AbstractTableModel{
 		//results = new Vector();
 		//String sql = "SELECT contactId, fName, lName, owner, email FROM contact_t";
 		String sql = "SELECT contact_t.contactId, fName, team_t.team FROM contact_t JOIN team_t ON contact_t.contactId=team_t.contactId";
-		ResultSet rs = DatabaseHandler.select(sql);
+		ResultSet rs = zDatabaseHandlerBackend.select(sql);
 		System.out.println("RESULT SET: " + rs);
 		if(rs == null){
 			JOptionPane.showConfirmDialog(null, "There are no entries in the database. Please add some contacts", "No data", -1);

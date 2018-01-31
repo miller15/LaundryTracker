@@ -14,10 +14,10 @@ import javax.swing.border.EmptyBorder;
 import net.miginfocom.swing.MigLayout;
 
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import java.awt.event.ActionEvent;
 
-
-public class CreateAccount extends JFrame {
+public class aCreateAccountWindow extends JFrame {
 
 	/**
 	 * 
@@ -26,7 +26,7 @@ public class CreateAccount extends JFrame {
 
 	private JPanel contentPane;
 	
-	private JFrame frmCreateaccount;
+	static JFrame frmCreateaccount;
 	private JTextField txtUsername;
 	private JPasswordField pwdPword;
 	private JPasswordField pwdConfirm;
@@ -41,9 +41,10 @@ public class CreateAccount extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					CreateAccount frame = new CreateAccount();
+					aCreateAccountWindow frame = new aCreateAccountWindow();
 					//frame.setVisible(true);
 				} catch (Exception e) {
+					System.out.println("DIDNT GET FAR");
 					e.printStackTrace();
 				}
 			}
@@ -53,7 +54,7 @@ public class CreateAccount extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public CreateAccount() {
+	public aCreateAccountWindow() {
 		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -121,39 +122,55 @@ public class CreateAccount extends JFrame {
 				char[] pWordConfirm = pwdConfirm.getPassword();
 				String password = new String(pWord);
 				String passwordConfirm = new String(pWordConfirm);
+				String uName = txtUsername.getText();
 				boolean success;
-				boolean pwdFlag = true;
-				boolean uNameFlag = true;
-				if(password.equals("") || passwordConfirm.equals("")){
-					pwdFlag = false;
-				} else {
-					for(int i=0; i < pWord.length; i++)
-					{
-						if(pWord[i] != pWordConfirm[i]){
-							pwdFlag = false; //check that the password is correct
-						}
-					}
+				boolean pwdFlagEmpty = false; //ensure password isn't blank
+				boolean pwdFlagLength = false; //ensure password is at least 12 characters
+				boolean pwdFlagMismatch = false; //ensure the password matches confirm password field
+				boolean uNameFlagEmpty = false; //ensure username isn't blank
+				boolean uNameFlagLength = false; //ensure username isn't longer than 25 characters (25 is most db can hold)
+				if(password.equals("") || passwordConfirm.equals("")) {
+					pwdFlagEmpty = true;
+				} else if(pWord.length < 1) {
+					pwdFlagLength = true;
+				} else if (!Arrays.equals(pWord, pWordConfirm)) {
+					pwdFlagMismatch = true;
 				}
-				if(txtUsername.getText().equals("")){
-					uNameFlag = false;
-					System.out.println("USERNAME EMPTY");
+				if(uName.equals("")) {
+					uNameFlagEmpty = true;
+					//System.out.println("USERNAME EMPTY");
+				} else if(uName.length() > 25) {
+					uNameFlagLength = true;
 				}
-				if(pwdFlag && uNameFlag){
-					success = DatabaseHandler.addUser(txtFname.getText(), txtLname.getText(), txtUsername.getText(), password, txtEmail.getText());
-					MainWindow.setCurrUser(txtUsername.getText());
-					if(success){
-						//MessagePage.main(null);
+				if(!uNameFlagEmpty && !uNameFlagLength && !pwdFlagEmpty && !pwdFlagLength && !pwdFlagMismatch){
+				    byte saltBytes[] = new byte[16];
+				    String saltString = saltBytes.toString();
+					success = zDatabaseHandlerBackend.addUser(txtFname.getText(), txtLname.getText(), txtUsername.getText(), password, txtEmail.getText(), saltBytes, saltString);
+					bWelcomeScreenWindow.setCurrUser(txtUsername.getText());
+					if(success) {
+						//cMainDashboardWindow.main(null);
 						frmCreateaccount.dispose();
-						MessagePage.runMessageTabs();
-					} else{
+						cMainDashboardWindow.runMessageTabs();
+					} else {
 						txtUsername.setText("");
 					}
-				}else if(!pwdFlag){
-					JOptionPane.showConfirmDialog(null, "Password does not match. Please re-type password fields.", "Pasword Error", -1);
+				} else if(uNameFlagEmpty) {
+					JOptionPane.showConfirmDialog(null, "Username is empty. Please enter a username.", "Username Empty Error", -1);
+				} else if(uNameFlagLength) {
+					JOptionPane.showConfirmDialog(null, "Username is too long. Username can be a max of 25 characters.", "Username Length Error", -1);
+					txtUsername.setText("");
+				} else if(pwdFlagEmpty) {
+					JOptionPane.showConfirmDialog(null, "You must enter a password!", "Pasword Empty Error", -1);
 					pwdPword.setText("");
 					pwdConfirm.setText("");
-				} else if(!uNameFlag){
-					JOptionPane.showConfirmDialog(null, "Username is empty. Please enter a username.", "Username Error", -1);
+				} else if(pwdFlagLength) {
+					JOptionPane.showConfirmDialog(null, "Your password must be at least 12 characters long.", "Pasword Length Error", -1);
+					pwdPword.setText("");
+					pwdConfirm.setText("");
+				} else if(pwdFlagMismatch) {
+					JOptionPane.showConfirmDialog(null, "Oops! Your password didn't match. Please re-type.", "Pasword Mismatch Error", -1);
+					pwdPword.setText("");
+					pwdConfirm.setText("");
 				}
 			}
 		});

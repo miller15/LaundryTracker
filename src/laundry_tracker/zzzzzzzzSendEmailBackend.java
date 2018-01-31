@@ -11,14 +11,14 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.swing.JOptionPane;
 
-public class SendEmail {
+public class zzzzzzzzSendEmailBackend {
 	
 	private static MimeMessage createMessage(Session session, String from, String[] toArray, String subject, String body){
 		// Create a default MimeMessage object.
         MimeMessage message = new MimeMessage(session);
 
         System.out.println("");
-		System.out.println("SendEmail.java: createMessage: ");
+		System.out.println("zzzzzzzzSendEmailBackend.java: createMessage: ");
 		for(int i=0; i<toArray.length; i++){
 			System.out.println(toArray[i]);
 		}
@@ -92,13 +92,18 @@ public class SendEmail {
 	public static void setupAndSend(String subject, String body, String from, String password, String[] toArray, String username){
 		Session session = Session.getInstance(setProps());
 		System.out.println("");
-		System.out.println("SendEmail.java: setupAndSend: ");
+		System.out.println("zzzzzzzzSendEmailBackend.java: setupAndSend: ");
 		for(int i=0; i<toArray.length; i++){
 			System.out.println(toArray[i]);
 		}
 		System.out.println("");
 		MimeMessage message = createMessage(session, from, toArray, subject, body);
 		send(message, password, "smtp", session, username);
+	}
+
+	public static void forgotPassword() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

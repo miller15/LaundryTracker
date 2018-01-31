@@ -19,7 +19,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
-public class RecipientsTable extends JPanel implements ActionListener{
+public class dViewAllClientsWindow extends JPanel implements ActionListener{
 
 	/**
 	 * 
@@ -29,13 +29,13 @@ public class RecipientsTable extends JPanel implements ActionListener{
 	JTable table;
 	JScrollPane scrollPane;	
 	JButton btnSend;
-	static String currOwner = MainWindow.getCurrUser();
+	static String currOwner = bWelcomeScreenWindow.getCurrUser();
 	boolean pressCtrl = false;
 	private static JPopupMenu rClickPopup;
 	private static JMenuItem edit;
 	private static JMenuItem delete;
 
-	public RecipientsTable() {
+	public dViewAllClientsWindow() {
 		super(new GridLayout(2,0));
 		recipientsModel = new CustomTableModel();
 		recipientsModel.setTable();
@@ -58,7 +58,7 @@ public class RecipientsTable extends JPanel implements ActionListener{
 					fieldValues[k] = (String)table.getValueAt(index, k);
 				}
 				String select = "SELECT * from contact_t WHERE contactId = '" + fieldValues[6] + "'";
-				ResultSet all = DatabaseHandler.select(select);
+				ResultSet all = zDatabaseHandlerBackend.select(select);
 				ResultSetMetaData metaData = null;
 				try {
 					metaData = all.getMetaData();
@@ -85,9 +85,9 @@ public class RecipientsTable extends JPanel implements ActionListener{
 				} catch(SQLException e) {
 					e.printStackTrace();
 				}
-				EditContact.main(rowValue);
+				EditClient.main(rowValue);
 				System.out.println("GOT HERE");
-				//MessagePage.UPDATETABLE();
+				//cMainDashboardWindow.UPDATETABLE();
 				System.out.println("FINISHED HERE");
 				
 				System.out.println("*****************************:::::" + index);
@@ -116,13 +116,13 @@ public class RecipientsTable extends JPanel implements ActionListener{
 					recipients[i] = (String)model.getValueAt(rowIndeces[i], 5);
 					
 					System.out.println("");
-					System.out.println("RecipientsTable.java: actionListener: ");
+					System.out.println("dViewAllClientsWindow.java: actionListener: ");
 					System.out.println(recipients[i]);
 					System.out.println("");
 					
 										
 				}
-				MessagePage.sendMessage(recipients, model.getOwnerEmail());
+				cMainDashboardWindow.sendMessage(recipients, model.getOwnerEmail());
 			}
 		});
 		
@@ -174,7 +174,7 @@ public class RecipientsTable extends JPanel implements ActionListener{
 					+ "JOIN subTeam_t ON team_t.teamId = subTeam_t.teamId "
 					+ "JOIN position_t ON subTeam_t.subId = position_t.subTeamId "
 					+ "WHERE contact_t.owner = '" + currOwner + "' ";
-			ResultSet rs = DatabaseHandler.select(sql);
+			ResultSet rs = zDatabaseHandlerBackend.select(sql);
 			System.out.println("RESULT SET: " + rs);
 			if(rs == null){
 				JOptionPane.showConfirmDialog(null, "There are no entries in the database. Please add some contacts", "No data", -1);				
@@ -280,7 +280,7 @@ public class RecipientsTable extends JPanel implements ActionListener{
 		private String getOwnerEmail() {
 			String owner = "default";
 			String sql = "SELECT email FROM user_t WHERE user_t.userName = '" + currOwner + "'";
-			ResultSet rs = DatabaseHandler.select(sql);
+			ResultSet rs = zDatabaseHandlerBackend.select(sql);
 			try {
 				while (rs.next()) {
 						owner =  rs.getString(1);
