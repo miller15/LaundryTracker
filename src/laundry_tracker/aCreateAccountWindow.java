@@ -120,16 +120,14 @@ public class aCreateAccountWindow extends JFrame {
 				//need to add this method to the Database Handler class
 				char[] pWord = pwdPword.getPassword();
 				char[] pWordConfirm = pwdConfirm.getPassword();
-				String password = new String(pWord);
-				String passwordConfirm = new String(pWordConfirm);
 				String uName = txtUsername.getText();
-				boolean success;
+				int success;
 				boolean pwdFlagEmpty = false; //ensure password isn't blank
 				boolean pwdFlagLength = false; //ensure password is at least 12 characters
 				boolean pwdFlagMismatch = false; //ensure the password matches confirm password field
 				boolean uNameFlagEmpty = false; //ensure username isn't blank
 				boolean uNameFlagLength = false; //ensure username isn't longer than 25 characters (25 is most db can hold)
-				if(password.equals("") || passwordConfirm.equals("")) {
+				if(pWord.equals("") || pWordConfirm.equals("")) {
 					pwdFlagEmpty = true;
 				} else if(pWord.length < 1) {
 					pwdFlagLength = true;
@@ -138,16 +136,20 @@ public class aCreateAccountWindow extends JFrame {
 				}
 				if(uName.equals("")) {
 					uNameFlagEmpty = true;
-					//System.out.println("USERNAME EMPTY");
 				} else if(uName.length() > 25) {
 					uNameFlagLength = true;
 				}
 				if(!uNameFlagEmpty && !uNameFlagLength && !pwdFlagEmpty && !pwdFlagLength && !pwdFlagMismatch){
-				    byte saltBytes[] = new byte[16];
-				    String saltString = saltBytes.toString();
-					success = zDatabaseHandlerBackend.addUser(txtFname.getText(), txtLname.getText(), txtUsername.getText(), password, txtEmail.getText(), saltBytes, saltString);
+					byte[] salt = Password.getNextSalt();
+					System.out.println("*****This is what's going into the db based off user registration: ");
+					System.out.println("Pword char[] raw input [C@629f0666: " + pWord);
+					System.out.println("Salt Raw byte[]: " + salt);
+					byte[] pWordSaltHash = Password.hash(pWord, salt);
+					System.out.println("Raw pWordSaltHash to be inserted byte[]: " + pWordSaltHash);
+					
+					success = zDatabaseHandlerBackend.addUser(txtFname.getText(), txtLname.getText(), txtUsername.getText(), pWordSaltHash, txtEmail.getText(), salt);
 					bWelcomeScreenWindow.setCurrUser(txtUsername.getText());
-					if(success) {
+					if(success == 1) {
 						//cMainDashboardWindow.main(null);
 						frmCreateaccount.dispose();
 						cMainDashboardWindow.runMessageTabs();

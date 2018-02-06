@@ -78,19 +78,19 @@ public class dViewAllClientsWindow extends JPanel implements ActionListener{
 						count = all.getRow();
 						for(int i=0; i < numColumns; i++){
 							rowValue[i] = all.getString(i+1);
-							System.out.println("One row select: ");
-							System.out.println("Data[" + (count-1) + "][" + i + "]" + " : " + rowValue[i]);						
+//							System.out.println("One row select: ");
+//							System.out.println("Data[" + (count-1) + "][" + i + "]" + " : " + rowValue[i]);						
 						}
 					}
 				} catch(SQLException e) {
 					e.printStackTrace();
 				}
 				EditClient.main(rowValue);
-				System.out.println("GOT HERE");
+//				System.out.println("GOT HERE");
 				//cMainDashboardWindow.UPDATETABLE();
-				System.out.println("FINISHED HERE");
+//				System.out.println("FINISHED HERE");
 				
-				System.out.println("*****************************:::::" + index);
+//				System.out.println("*****************************:::::" + index);
 			}
 		});
 		
@@ -109,16 +109,16 @@ public class dViewAllClientsWindow extends JPanel implements ActionListener{
 		        String recipients[] = new String[table.getSelectedRowCount()];
 		        
 				int rowIndeces[] = table.getSelectedRows();
-				System.out.println("*****rowIndeces.length: " + rowIndeces.length);
+//				System.out.println("*****rowIndeces.length: " + rowIndeces.length);
 				for(int i=0; i<rowIndeces.length; i++){
 					rowIndeces[i] = table.convertRowIndexToModel(rowIndeces[i]);
 					
 					recipients[i] = (String)model.getValueAt(rowIndeces[i], 5);
 					
-					System.out.println("");
-					System.out.println("dViewAllClientsWindow.java: actionListener: ");
-					System.out.println(recipients[i]);
-					System.out.println("");
+//					System.out.println("");
+//					System.out.println("dViewAllClientsWindow.java: actionListener: ");
+//					System.out.println(recipients[i]);
+//					System.out.println("");
 					
 										
 				}
@@ -175,12 +175,12 @@ public class dViewAllClientsWindow extends JPanel implements ActionListener{
 					+ "JOIN position_t ON subTeam_t.subId = position_t.subTeamId "
 					+ "WHERE contact_t.owner = '" + currOwner + "' ";
 			ResultSet rs = zDatabaseHandlerBackend.select(sql);
-			System.out.println("RESULT SET: " + rs);
+//			System.out.println("RESULT SET: " + rs);
 			if(rs == null){
 				JOptionPane.showConfirmDialog(null, "There are no entries in the database. Please add some contacts", "No data", -1);				
 				colNames = new String[0];
 				rows = new Object[0][0];
-				System.out.println("Populating Empty Table");
+//				System.out.println("Populating Empty Table");
 			} else {
 				int numRows = 0;
 				try {
@@ -208,7 +208,7 @@ public class dViewAllClientsWindow extends JPanel implements ActionListener{
 				for (int h =0; h < numColumns; h++){
 					try {
 						colNames[h] = metaData.getColumnLabel(h+1);
-						System.out.println("Column Name " + h + ": " + colNames[h]);
+//						System.out.println("Column Name " + h + ": " + colNames[h]);
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
@@ -220,8 +220,8 @@ public class dViewAllClientsWindow extends JPanel implements ActionListener{
 						count = rs.getRow();
 						for(int i=0; i < numColumns; i++){
 							rows[count-1][i] = rs.getString(i+1);
-							System.out.println("Got here");
-							System.out.println("Data[" + (count-1) + "][" + i + "]" + " : " + rows[count-1][i]);						
+//							System.out.println("Got here");
+//							System.out.println("Data[" + (count-1) + "][" + i + "]" + " : " + rows[count-1][i]);						
 						}
 					}
 					/*System.out.println("Rows[" + (0) + "][" + 0 + "]" + " : " + rows[0][0]);
@@ -239,7 +239,7 @@ public class dViewAllClientsWindow extends JPanel implements ActionListener{
 				}
 				//fireTableChanged(null);
 			}
-			System.out.println("Populated Table");
+//			System.out.println("Populated Table");
 		}
 		
 		public int getColumnCount(){
@@ -268,13 +268,13 @@ public class dViewAllClientsWindow extends JPanel implements ActionListener{
 			int numCols = getColumnCount();
 			
 			for(int i=0; i<numRows; i++) {
-				System.out.print("    row " + i + ":");
+//				System.out.print("    row " + i + ":");
 				for (int j=0; j<numCols; j++) {
-					System.out.print("  " + rows[i][j]);
+//					System.out.print("  " + rows[i][j]);
 				}
-				System.out.println();
+//				System.out.println();
 			}
-			System.out.println("----------------------");
+//			System.out.println("----------------------");
 		}
 		
 		private String getOwnerEmail() {

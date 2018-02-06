@@ -5,6 +5,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -97,11 +98,11 @@ public class zDatabaseHandlerBackend {
 
 			String createUsers = "CREATE TABLE IF NOT EXISTS users("
 					+ "userName VARCHAR(25) PRIMARY KEY, "
-					+ "pWordSaltHash Char(64) NOT NULL COMMENT 'This is the hash of the password combined with the salt.', "
+					+ "pWordSaltHash VARBINARY(50) NOT NULL COMMENT 'This is the hash of the password combined with the salt.', "
 					+ "email varChar(50) NOT NULL, "
 					+ "fName varChar(20) NOT NULL, "
 					+ "lName varChar(25) NOT NULL,"
-					+ "salt Char(16) NOT NULL)";
+					+ "salt VARBINARY(50) NOT NULL)";
 				
 			String createClients = "CREATE TABLE IF NOT EXISTS clients(" +
 					"id INT PRIMARY KEY AUTO_INCREMENT, " + 
@@ -151,7 +152,7 @@ public class zDatabaseHandlerBackend {
 					+ "pick_up_sig varChar(15) COMMENT 'This is the username of the person who handed the laundry to the client.', "
 					+ "FOREIGN KEY(client_id) REFERENCES clients_archive(id) ON DELETE CASCADE ON UPDATE CASCADE)";
 			
-/*			stmtCreateT.executeUpdate("DROP TABLE IF EXISTS users");
+			stmtCreateT.executeUpdate("DROP TABLE IF EXISTS users");
 			System.out.println("Successfully dropped the users table.");
 			stmtCreateT.executeUpdate("DROP TABLE IF EXISTS laundry_loads");
 			System.out.println("Successfully dropped the laundry_loads table.");
@@ -161,7 +162,7 @@ public class zDatabaseHandlerBackend {
 			System.out.println("Successfully dropped the laundry_loads_archive table.");
 			stmtCreateT.executeUpdate("DROP TABLE IF EXISTS clients_archive");
 			System.out.println("Successfully dropped the clients_archive table.");
-*/			stmtCreateT.executeUpdate(createUsers);
+			stmtCreateT.executeUpdate(createUsers);
 			System.out.println("Successfully created the users table.");
 			stmtCreateT.executeUpdate(createClients);
 			System.out.println("Successfully created the clients table.");
@@ -231,53 +232,83 @@ public class zDatabaseHandlerBackend {
 	}
 
 	
-	public static boolean addUser(String fName, String lName, String uName,
-			String password, String email, byte [] saltBytes, String saltString) {
+	public static int addUser(String fName, String lName, String uName,
+								  byte[] pWordSaltHash, String email, byte[] salt) {
 		boolean success;
 
-		String pWordSaltHashStr = calculatePwordSaltStringHash(saltString, password);
-
 		String insertUser = "INSERT INTO users(userName, pWordSaltHash, email, fName, lName, salt) VALUES ('"
-				+ uName + "', '" + pWordSaltHashStr + "', '" + email + "', '" + fName + "', '" + lName + "', '" + saltString + "')";
+				+ uName + "', " + "?" + ", '" + email + "', '" + fName + "', '" + lName + "', " + "?" + ")";
+		System.out.println("*****This is what is actually being inserted: ");
 		System.out.println(insertUser);
 		Connection dbConn = connect_db();
+		PreparedStatement pstmt;
+		int successful = 0;
 		try {
+			pstmt = dbConn.prepareStatement(insertUser);
+			pstmt.setBytes(1, pWordSaltHash);
+			pstmt.setBytes(2, salt);
+			System.out.println("PSTMT*****:");
+			System.out.println(pstmt);
+			successful = pstmt.executeUpdate();
+			System.out.println(successful);
+			if (successful == 1) {
+				System.out.println("INSERT worked");
+			} else {
+				System.out.println("INSERT FAILED");
+			}
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+/*		try {
 			Statement insert = dbConn.createStatement();
 			insert.executeUpdate(insertUser);
-			System.out.println("Successfully added the user: " + uName);
+			ResultSet current = zDatabaseHandlerBackend.select("SELECT * FROM users WHERE userName = 'tim'");
+			System.out.println("All the stuff we just added: uname, hash, salt: ");
+			System.out.println(current.getString("username"));
+			System.out.println(current.getString("pWordSaltHash"));
+			System.out.println(current.getString("salt"));
+
+			//System.out.println("Successfully added the user: " + uName);
 			success = true;
 		} catch (SQLException e) {
 			show_error("Create statement Error", "That user already exists. Please choose a different username.");
 			System.out.println(e);
 			success = false;
 		}
-		return success;
+*/		return successful;
 	}
 
 	public static String calculatePwordSaltStringHash(String saltString, String password) {
 		
 		//need the salt to be in a bytes[]
-		byte[] saltBytes = saltString.getBytes(StandardCharsets.UTF_8); // Java 7+ only
-
+		//System.out.println("Salt in function: " + saltString);
+		//byte[] saltBytes = saltString.getBytes(StandardCharsets.ISO_8859_1 ); // Java 7+ only
+		//System.out.println("saltBytes after one manip: " + saltBytes.toString());
 	    //Hash the password using the SHA-256 algorithm
 		MessageDigest digest = null;
 		try {
 			digest = MessageDigest.getInstance("SHA-256");
 		} catch (NoSuchAlgorithmException e1) {
 			// TODO Auto-generated catch block
+			
 			e1.printStackTrace();
 		}
-		byte[] pWordHashBytes = digest.digest(password.getBytes(StandardCharsets.UTF_8)); //Input: string. Output: bytes[] --Now the password has been hashed!
+//		byte[] pWordHashBytes = digest.digest(password.getBytes(StandardCharsets.UTF_8)); //Input: string. Output: bytes[] --Now the password has been hashed!
+		String pWordHashString = digest.digest(password.getBytes(StandardCharsets.UTF_8)).toString(); //Input: string. Output: bytes[] --Now the password has been hashed!
 		
 		//Concatenate the pWordHash (byte[]) onto the saltBytes.
-		byte[] pWordSaltBytes = new byte[saltBytes.length + pWordHashBytes.length];
+/*		byte[] pWordSaltBytes = new byte[saltBytes.length + pWordHashBytes.length];
 		System.arraycopy(saltBytes, 0, pWordSaltBytes, 0, saltBytes.length);
 		System.arraycopy(pWordHashBytes, 0, pWordSaltBytes, saltBytes.length, pWordHashBytes.length);
-
+*/		String pWordSaltString = saltString + pWordHashString;
+		
+		
 		//Now finally, we can create the hash that will be stored in the db, used to validate the user's password when logging in.
 		//Input: String. Output: string (by default it's a bytes[] but we convert it to string because that's what's useful to us.)
-		String pWordSaltHashStr = digest.digest(pWordSaltBytes.toString().getBytes(StandardCharsets.UTF_8)).toString();
-
+//		String pWordSaltHashStr = digest.digest(pWordSaltBytes**.toString()**.getBytes(StandardCharsets.UTF_8)).toString();
+		String pWordSaltHashStr = digest.digest(pWordSaltString.getBytes(StandardCharsets.ISO_8859_1)).toString();
+		System.out.println("Shouldn't have run this method. pWordSaltHashString at the end: " + pWordSaltHashStr);
 		return pWordSaltHashStr;
 	}
 	

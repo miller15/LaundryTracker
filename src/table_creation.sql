@@ -1,6 +1,6 @@
 CREATE TABLE `users` (
   `userName` varchar(25) NOT NULL,
-  `pWord` varchar(40) NOT NULL,
+  `pWord` varbinary NOT NULL,
   `email` varchar(50) NOT NULL,
   `fName` varchar(20) NOT NULL,
   `lName` varchar(25) NOT NULL,

@@ -142,9 +142,11 @@ public class bWelcomeScreenWindow {
 				 *then proceed to the message tab (cMainDashboardWindow.java).
 				 */
 				String uName = txtUname.getText();
-				String pwd = new String(pwdPwd.getPassword());
-				String salt = null;
-				String pWordSaltHash = null;
+				char[] pwd = pwdPwd.getPassword();
+				System.out.println("*****This is what happens when a user tries to login: ");
+				System.out.println("pwd the user typed to login with: " + pwd);
+				byte[] salt = null;
+				byte[] pWordSaltHash = null;
 				boolean allowAccess = true;
 				
 				String selectUsers = "SELECT userName, pWordSaltHash, salt from users WHERE userName='" + uName + "'";
@@ -153,25 +155,35 @@ public class bWelcomeScreenWindow {
 				try{
 					current.next();
 					currUser = current.getString("username");
-					pWordSaltHash = current.getString("pWordSaltHash");
-					salt = current.getString("salt");
-/*					System.out.println("currUser: " + currUser);
-					System.out.println("DB pWordSaltHash: " + pWordSaltHash);
-					System.out.println("salt: " + salt);
-*/				} catch (SQLException e) {
+					pWordSaltHash = current.getBytes("pWordSaltHash");
+					//pWordSaltHash = current.getBinaryStream	
+					salt = current.getBytes("salt");
+					System.out.println("Current User: " + currUser);
+					System.out.println("PasswordSalt hash as retrieved from database: " + pWordSaltHash);
+					System.out.println("Salt as retrieved from database: " + salt);
+					Password.isExpectedPassword(pwd, salt, pWordSaltHash);
+				} catch (SQLException e) {
 					allowAccess = false;
 					JOptionPane.showInputDialog(null, "Uh oh! Username not found. If you forgot your username, please type your email to have it sent to you.", "Incorrect Username");
 				}
 				if(allowAccess) {
 					//Their username was legit, so now check their password.
-					String inputpWordSaltHash = zDatabaseHandlerBackend.calculatePwordSaltStringHash(salt, pwd);
+					//byte[] inputpWordSaltHash = Password.hash(pwd, salt); //generate hash with salt and input password
+					//Now check input pWordSalt hash against the pWordSalt hash stored in db.
+					
 					//System.out.println("inputpWordSaltHash: " + inputpWordSaltHash);
-					if(inputpWordSaltHash != pWordSaltHash) {
+					if(!Password.isExpectedPassword(pwd, salt, pWordSaltHash)) {
 						allowAccess = false;
 					} else {
 						cMainDashboardWindow.runMessageTabs();
 					}
-				} 
+
+					/*					if(inputpWordSaltHash != pWordSaltHash) {
+						allowAccess = false;
+					} else {
+						cMainDashboardWindow.runMessageTabs();
+					}
+*/				} 
 				if(!allowAccess) {
 					JOptionPane.showInputDialog(null, "If you forgot your password, please type your username to reset it.", "Incorrect Password");
 					txtUname.setText("");
