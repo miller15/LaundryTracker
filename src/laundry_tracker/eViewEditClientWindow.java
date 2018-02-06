@@ -112,9 +112,9 @@ public class eViewEditClientWindow extends JFrame{
 					txtLname.setText("");
 				} else if (lName.length() < 1){
 					show_error("Last Name", "Please enter a last name");
-				} else {
+				} /*else {
 					addContact(fName, lName, email, team, subTeam1, position1, position2, subTeam2, position3, position4);
-				}
+				}*/
 			}
 			
 			private void addClient(String fName, String lName, String email, String team, String subTeam1, String position1, String position2, String subTeam2, String position3, String position4) {
@@ -122,7 +122,7 @@ public class eViewEditClientWindow extends JFrame{
 				boolean success;
 				String currUser = bWelcomeScreenWindow.getCurrUser();
 				System.out.println("Current User from MessagePage class: " + currUser);
-				success = DatabaseHandler.addClient(fName, lName, email, team, subTeam1, position1, position2, subTeam2, position3, position4, currUser);
+				/*success = DatabaseHandler.addClient(fName, lName, email, team, subTeam1, position1, position2, subTeam2, position3, position4, currUser);
 				if(success){
 					txtFname.setText("");
 					txtLname.setText("");
@@ -140,7 +140,7 @@ public class eViewEditClientWindow extends JFrame{
 					frmEditContact.dispose();
 				} else {
 					JOptionPane.showConfirmDialog(null, "Contact " + fName + " could not be updated.", "Failure", -1);
-				}
+				}*/
 			}
 
 		});

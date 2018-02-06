@@ -85,7 +85,7 @@ public class dViewAllClientsWindow extends JPanel implements ActionListener{
 				} catch(SQLException e) {
 					e.printStackTrace();
 				}
-				EditClient.main(rowValue);
+				//EditClient.main(rowValue);
 //				System.out.println("GOT HERE");
 				//cMainDashboardWindow.UPDATETABLE();
 //				System.out.println("FINISHED HERE");
@@ -122,7 +122,7 @@ public class dViewAllClientsWindow extends JPanel implements ActionListener{
 					
 										
 				}
-				cMainDashboardWindow.sendMessage(recipients, model.getOwnerEmail());
+				//cMainDashboardWindow.sendMessage(recipients, model.getOwnerEmail());
 			}
 		});
 		
@@ -174,7 +174,7 @@ public class dViewAllClientsWindow extends JPanel implements ActionListener{
 					+ "JOIN subTeam_t ON team_t.teamId = subTeam_t.teamId "
 					+ "JOIN position_t ON subTeam_t.subId = position_t.subTeamId "
 					+ "WHERE contact_t.owner = '" + currOwner + "' ";
-			ResultSet rs = zDatabaseHandlerBackend.select(sql);
+/*			ResultSet rs = zDatabaseHandlerBackend.select(sql);
 //			System.out.println("RESULT SET: " + rs);
 			if(rs == null){
 				JOptionPane.showConfirmDialog(null, "There are no entries in the database. Please add some contacts", "No data", -1);				
@@ -224,12 +224,12 @@ public class dViewAllClientsWindow extends JPanel implements ActionListener{
 //							System.out.println("Data[" + (count-1) + "][" + i + "]" + " : " + rows[count-1][i]);						
 						}
 					}
-					/*System.out.println("Rows[" + (0) + "][" + 0 + "]" + " : " + rows[0][0]);
+					System.out.println("Rows[" + (0) + "][" + 0 + "]" + " : " + rows[0][0]);
 					System.out.println("Rows[" + (0) + "][" + 1 + "]" + " : " + rows[0][1]);
 					System.out.println("Rows[" + (0) + "][" + 2 + "]" + " : " + rows[0][2]);
 					System.out.println("Rows[" + (1) + "][" + 0 + "]" + " : " + rows[1][0]);
 					System.out.println("Rows[" + (1) + "][" + 1 + "]" + " : " + rows[1][1]);
-					System.out.println("Rows[" + (1) + "][" + 2 + "]" + " : " + rows[1][2]);*/
+					System.out.println("Rows[" + (1) + "][" + 2 + "]" + " : " + rows[1][2]);
 
 
 
@@ -239,7 +239,7 @@ public class dViewAllClientsWindow extends JPanel implements ActionListener{
 				}
 				//fireTableChanged(null);
 			}
-//			System.out.println("Populated Table");
+*///			System.out.println("Populated Table");
 		}
 		
 		public int getColumnCount(){

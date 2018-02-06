@@ -10,12 +10,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Dictionary;
+import java.util.Map;
 
 import javax.swing.JOptionPane;
 
 public class zDatabaseHandlerBackend {
 	static final String HOST_URL = "jdbc:mysql://localhost/";
-	static final String DB_URL = "jdbc:mysql://localhost/communicate_db";
+	static final String DB_URL = "jdbc:mysql://localhost/laundry_tracker";
 	static Connection connHost = null;
 
 	static String USER = "root";
@@ -73,7 +74,7 @@ public class zDatabaseHandlerBackend {
 		Statement stmtCreateDB = null;
 		try {
 			stmtCreateDB = connHost.createStatement();
-			String sqlCreateDB = "CREATE DATABASE IF NOT EXISTS communicate_db";
+			String sqlCreateDB = "CREATE DATABASE IF NOT EXISTS laundry_tracker";
 			try{
 				stmtCreateDB.executeUpdate(sqlCreateDB);
 				System.out.println("Created the database skeleton.");
@@ -107,7 +108,7 @@ public class zDatabaseHandlerBackend {
 			String createClients = "CREATE TABLE IF NOT EXISTS clients(" +
 					"id INT PRIMARY KEY AUTO_INCREMENT, " + 
 					"fName varChar(20) NOT NULL, " +
-					"lName varChar(25) NOT NULL, " +
+					"lName varChar(25), " +
 					"monday bool NOT NULL DEFAULT TRUE COMMENT 'True means eligible for laundry.', " + 
 					"tuesday bool NOT NULL DEFAULT TRUE, " + 
 					"wednesday bool NOT NULL DEFAULT TRUE, " + 
@@ -115,7 +116,8 @@ public class zDatabaseHandlerBackend {
 					"friday bool NOT NULL DEFAULT TRUE, " + 
 					"saturday bool NOT NULL DEFAULT TRUE, " + 
 					"sunday bool NOT NULL DEFAULT TRUE, " + 
-					"today bool NOT NULL DEFAULT TRUE COMMENT 'This will save the state of a clients laundry for the current day. At midnight, all clients today statuses will reset to TRUE')";
+					"today bool NOT NULL DEFAULT TRUE COMMENT 'This will save the state of a clients laundry for the current day. At midnight, all clients today statuses will reset to TRUE'," +
+					"notes BLOB)";
 
 			String createLaundryLoads = "CREATE TABLE IF NOT EXISTS laundry_loads(" +
 					"id INT PRIMARY KEY AUTO_INCREMENT, " +
@@ -312,18 +314,16 @@ public class zDatabaseHandlerBackend {
 		return pWordSaltHashStr;
 	}
 	
-	public static boolean addClient(String fName, String lName, Dictionary eligibility_dict) {
+	public static boolean addClient(String fName, String lName, String phone_number, Map<String, Boolean> eligibility) {
 		boolean worked = true;
 		//System.out.println("Current User from zDatabaseHandlerBackend Class: " + currentUser);
-		String insertClient = "INSERT INTO clients(fName, lName, moday, tuesday, wednesday, thursday, friday, saturday, sunday, today) VALUES ('"
-				+ fName + "', '" + lName + "', '" + eligibility_dict.get("monday") + "', '" + eligibility_dict.get("tuesday") + "', '" + eligibility_dict.get("wednesday") + "', '" + eligibility_dict.get("thursday") + "', '" + eligibility_dict.get("friday") + "', '" + eligibility_dict.get("saturday") + "', '" + eligibility_dict.get("sunday") + "')";
-		
+		String insertClient = "INSERT INTO clients(fName, lName, monday, tuesday, wednesday, thursday, friday, saturday, sunday) VALUES ('"
+				+ fName + "', '" + lName + "', " + eligibility.get("monday") + ", " + eligibility.get("tuesday") + ", " + eligibility.get("wednesday") + ", " + eligibility.get("thursday") + ", " + eligibility.get("friday") + ", " + eligibility.get("saturday") + ", " + eligibility.get("sunday") + ")";
+		System.out.println(insertClient);
 		Connection dbConn = connect_db();
 		try{
 			Statement insert = dbConn.createStatement();
-			insert.executeUpdate(insertClient, Statement.RETURN_GENERATED_KEYS);
-			//ResultSet rs = insert.getGeneratedKeys(); //Not sure why I added this line. Delete it later. 
-		    
+			insert.executeUpdate(insertClient, Statement.RETURN_GENERATED_KEYS);		    
 		} catch (SQLException e) {
 			worked = false;
 			show_error("Insert Error. Please try again. If error continues, contact the developer.", e);
