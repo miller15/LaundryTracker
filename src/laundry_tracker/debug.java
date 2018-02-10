@@ -2,6 +2,8 @@ package laundry_tracker;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Calendar;
 
 import javax.swing.BorderFactory;
@@ -53,9 +55,12 @@ public class debug {
 		return selection;
 	}
 	
-	public static void show_note_prompt(String table, String id, String title, String message, String[] options) {
-		JFrame frame = new JFrame(title);
+	public static void show_note_prompt(String table, String id, String title, String message, String[] options, boolean edit_existing) {
+		//This can be used for client notes and laundry notes.
+		//It can also be used for adding a note and editing a note.
+		//To edit, pass a value of true for the addition parameter.
 		
+		JFrame frame = new JFrame(title);
 		final SpringLayout layout = new SpringLayout();
 		final JPanel panel = new JPanel(layout);
 		panel.setPreferredSize(new Dimension(350, 160));
@@ -66,6 +71,19 @@ public class debug {
 		txtNote.setBorder(BorderFactory.createLineBorder(Color.black));
         txtNote.setLineWrap(true);
         txtNote.setWrapStyleWord(true);
+        if(edit_existing) {
+        	String retrieve_note = "SELECT notes FROM " + table + " WHERE id = " + id;
+    		ResultSet note_result = zDatabaseHandlerBackend.select(retrieve_note);
+    		try {
+    			note_result.next();
+    			String current_note = note_result.getString("notes");
+    			txtNote.setText(current_note);
+    		} catch (SQLException e) {
+    			debug.show_error("Error retrieving laundry_load", "Could not retrieve laundry_load notes data.");
+    			e.printStackTrace();
+    		}
+
+        }
         JScrollPane scrollPane = new JScrollPane(txtNote,
         JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
         JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -78,7 +96,7 @@ public class debug {
         layout.putConstraint(SpringLayout.NORTH, scrollPane,
                 10,
                 SpringLayout.SOUTH, lblNote);
-
+        
          int selection = JOptionPane.showOptionDialog(frame,
                 panel,
                 title,
@@ -87,9 +105,20 @@ public class debug {
                 null,
                 options,
                 "No Note");
+         String newNote = txtNote.getText();
+    
          if(selection == 0) {
-        	 //Add a note.
-        	 String addNote = "UPDATE " + table + " SET notes = '" + txtNote.getText() + "' WHERE id = " + id;
+        		 //Add a note.
+        	 String addNote = null;
+        	 if (newNote.isEmpty() || newNote.equals("\n")) {
+        		 System.out.println("NO NOTE ENETERED");
+        		 addNote = "UPDATE " + table + " SET notes = null WHERE id = " + id;
+        		 debug.print(addNote);
+        	 } else {
+        		 addNote = "UPDATE " + table + " SET notes = '" + newNote + "' WHERE id = " + id;
+        		 debug.print("ENTERING NOTE: ");
+        		 debug.print(addNote);
+        	 }
         	 zDatabaseHandlerBackend.update(addNote);
          } 
 

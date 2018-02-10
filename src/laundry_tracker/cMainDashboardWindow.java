@@ -124,7 +124,7 @@ public class cMainDashboardWindow extends JFrame {
 		panelLaundryList.add(scrollPane, gbc_scrollPane);
 		
 		create_laundry_table(scrollPane);
-		laundryTable.addMouseListener(new MouseAdapter() {
+/*		laundryTable.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent mouseEvent) {
 				JTable table = (JTable) mouseEvent.getSource();
 				Point point = mouseEvent.getPoint();
@@ -133,13 +133,15 @@ public class cMainDashboardWindow extends JFrame {
 				if (mouseEvent.getClickCount() == 2) {
 					if (column == 1) {
 						//Bring up the client info page
-						
+
 						System.out.println("Client page");
 					} else if (column == 5) {
 						//Bring up the edit/view notes page
-						//debug.show_note_prompt("laundry_loads", String.valueOf(laundry_id), "Laundry Note", "These are all the notes about the current load of laundry.", options);
-
-						debug.print("Notes page");
+						int laundry_id = (int) laundryTable.getValueAt(laundryTable.getSelectedRow(), 0);
+						String[] options = {"Save and Close", "Close"};
+						debug.show_note_prompt("laundry_loads", String.valueOf(laundry_id), "Laundry Note", "<html>These are all the notes about the current load of laundry.<br>You can make changes and/or additions.<html>", options, true);
+						//Refresh the table
+						cMainDashboardWindow.update_table();
 					} else {
 						//Tell user they can't double click here.
 						debug.show_error("No Double click", "You can't double click this column.");
@@ -147,7 +149,7 @@ public class cMainDashboardWindow extends JFrame {
 				}
 			}
 		});
-		
+*/		
 		JButton btnMarkLoadComplete = new JButton("Mark Load Complete");
 		GridBagConstraints gbc_btnMarkLoadComplete = new GridBagConstraints();
 		gbc_btnMarkLoadComplete.gridwidth = 2;
@@ -183,10 +185,6 @@ public class cMainDashboardWindow extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
 					//Select highlighted id from the table
-					int laundryIDD = (int) laundryTable.getValueAt(laundryTable.getSelectedRow(), 0);
-					System.out.println("LAUNDRYID: " + laundryIDD);
-					String clientIDD = (String) laundryTable.getValueAt(laundryTable.getSelectedRow(), 6);
-					System.out.println("CLIENTID: " + clientIDD);
 					int laundry_id = (int) laundryTable.getValueAt(laundryTable.getSelectedRow(), 0);
 					String client_id = (String) laundryTable.getValueAt(laundryTable.getSelectedRow(), 6);
 					edit_laundry("pickup", laundry_id, client_id, bWelcomeScreenWindow.getCurrUser());
@@ -628,8 +626,8 @@ public class cMainDashboardWindow extends JFrame {
 protected void edit_laundry(String editType, int laundry_id, String client_id, String current_user) {
 	boolean proceed = true;
 	String[] options = {"Add This Note", "No Note"};
-	debug.show_note_prompt("laundry_loads", String.valueOf(laundry_id), "Laundry Note", "Would you like to add a note to this laundry entry?", options);
-	debug.show_note_prompt("clients", client_id, "Client Note", "Would you like to add a note to this client's profile?", options); 
+	debug.show_note_prompt("laundry_loads", String.valueOf(laundry_id), "Laundry Note", "Would you like to add a note to this laundry entry?", options, false);
+	debug.show_note_prompt("clients", client_id, "Client Note", "Would you like to add a note to this client's profile?", options, false); 
 	if(editType == "pickup") {
 		System.out.println("pickingup");
 		//Check to make sure the laundry is marked as complete.
@@ -675,8 +673,34 @@ private static void create_laundry_table(JScrollPane scrollPane) {
 	laundryTable.setFillsViewportHeight(true);
 	laundryTable.setBorder(new MatteBorder(1, 2, 2, 2, (Color) new Color(0, 0, 0)));
 	laundryTable.setUpdateSelectionOnSort(true);
-/*	laundryTable.setEnabled(false);
-*/	scrollPane.setViewportView(laundryTable);
+	laundryTable.addMouseListener(new MouseAdapter() {
+		public void mousePressed(MouseEvent mouseEvent) {
+			JTable table = (JTable) mouseEvent.getSource();
+			Point point = mouseEvent.getPoint();
+			int row = table.rowAtPoint(point);
+			int column = table.columnAtPoint(point);
+			if (mouseEvent.getClickCount() == 2) {
+				if (column == 1) {
+					//Bring up the client info page
+					//Make the client info page a separate window.
+
+					System.out.println("Client page");
+				} else if (column == 5) {
+					//Bring up the edit/view notes page
+					int laundry_id = (int) laundryTable.getValueAt(laundryTable.getSelectedRow(), 0);
+					String[] options = {"Save and Close", "Close"};
+					debug.show_note_prompt("laundry_loads", String.valueOf(laundry_id), "Laundry Note", "<html>These are all the notes about the current load of laundry.<br>You can make changes and/or additions.<html>", options, true);
+					//Refresh the table
+					cMainDashboardWindow.update_table();
+				} else {
+					//Tell user they can't double click here.
+					debug.show_error("No Double click", "You can't double click this column.");
+				}
+			}
+		}
+	});
+
+	scrollPane.setViewportView(laundryTable);
 
 }
 
@@ -697,7 +721,15 @@ private static DefaultTableModel buildTableModel() throws SQLException {
 	while (rs.next()) {
 		Vector<Object> vector = new Vector<Object>();
 		for (int columnIndex = 1; columnIndex <= colCount; columnIndex++) {
-			vector.add(rs.getObject(columnIndex));
+			if(columnIndex == 6) {
+				if(rs.getObject(6) != null) {
+					vector.add("yes");
+				} else {
+					vector.add("");
+				}
+			} else {
+				vector.add(rs.getObject(columnIndex));
+			}
 		}
 		data.add(vector);
 	}

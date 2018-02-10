@@ -457,11 +457,14 @@ public class zDatabaseHandlerBackend {
 			stUpdate = dbConn.createStatement();
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}
+		} 
 		try {
 			stUpdate.executeUpdate(update);
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally{
+			disconnect_db(stUpdate);
+			disconnect_host(dbConn);
 		}
 	}
 	
