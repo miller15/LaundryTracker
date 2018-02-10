@@ -4,12 +4,19 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.text.ParseException;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -21,18 +28,22 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableModel;
 import javax.swing.text.MaskFormatter;
 import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
-import javax.swing.JDesktopPane;
-import javax.swing.Box;
-import com.jgoodies.forms.factories.DefaultComponentFactory;
-import java.awt.ScrollPane;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.border.MatteBorder;
+import java.awt.Font;
+import com.toedter.calendar.JDateChooser;
 
 
 public class cMainDashboardWindow extends JFrame {
@@ -45,23 +56,11 @@ public class cMainDashboardWindow extends JFrame {
 	private JTextField txtFname;
 	private JTextField txtLname;
 	private static String currUser;
-	private static dViewAllClientsWindow tableContentPane;
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					cMainDashboardWindow frame = new cMainDashboardWindow();
-					frame.setVisible(true);
-					
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+	//private static dViewAllClientsWindow tableContentPane;
+	private static JTable laundryTable;
+	private JTextField textFieldFName;
+	private JTextField textFieldLName;
+	private static JScrollPane scrollPane;
 
 	/**
 	 * Create the frame.
@@ -82,35 +81,248 @@ public class cMainDashboardWindow extends JFrame {
 	}
 	
 	public cMainDashboardWindow() throws ParseException {
-		setTitle("Manage");
+		setTitle("Manage Laundry");
 		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 531, 496);
-		JPanel recipientsPane = new JPanel();
+		setBounds(100, 100, 783, 535);
 		JPanel panelAddClient = new JPanel();
 		panelAddClient.setBorder(new TitledBorder(new EtchedBorder(), "Fill out the fields to enter a new client into the database. (* indicates required field)"));
 		
 		JTabbedPane tabbedPane = new JTabbedPane();
 		tabbedPane.setBorder(new CompoundBorder(new LineBorder(new Color(128, 0, 0), 2, true), new LineBorder(new Color(218, 165, 32))));
 		
-		JFrame tableFrame = new JFrame("recipientsFrame");
-		//tableFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		//tableContentPane = new dViewAllClientsWindow();
+		//tableContentPane.setOpaque(true);
+		JPanel panelLaundryList = new JPanel();
 		
-		tableContentPane = new dViewAllClientsWindow();
-		tableContentPane.setOpaque(true);
-		tableFrame.setContentPane(tableContentPane);
+		tabbedPane.addTab("Laundry List", null, panelLaundryList, null);
+		GridBagLayout gbl_viewLaundryList = new GridBagLayout();
+		gbl_viewLaundryList.columnWidths = new int[]{0, 80, 0, 0};
+		gbl_viewLaundryList.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_viewLaundryList.columnWeights = new double[]{1.0, 1.0, 1.0, Double.MIN_VALUE};
+		gbl_viewLaundryList.rowWeights = new double[]{0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		panelLaundryList.setLayout(gbl_viewLaundryList);
 		
-		JPanel panelClientList = new JPanel();
-		tabbedPane.addTab("Client List", null, panelClientList, null);
+		JButton btnDropoffNewLoad = new JButton("Drop-off New Load");
+		btnDropoffNewLoad.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				new gDropoffWindow();
+			}
+		});
+		GridBagConstraints gbc_btnDropoffNewLoad = new GridBagConstraints();
+		gbc_btnDropoffNewLoad.gridwidth = 2;
+		gbc_btnDropoffNewLoad.insets = new Insets(0, 0, 5, 5);
+		gbc_btnDropoffNewLoad.gridx = 0;
+		gbc_btnDropoffNewLoad.gridy = 0;
+		panelLaundryList.add(btnDropoffNewLoad, gbc_btnDropoffNewLoad);
 		
-		//tabbedPane.add("Recipients2", tableContentPane);
+		scrollPane = new JScrollPane();
+		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
+		gbc_scrollPane.gridheight = 16;
+		gbc_scrollPane.fill = GridBagConstraints.BOTH;
+		gbc_scrollPane.gridx = 2;
+		gbc_scrollPane.gridy = 0;
+		panelLaundryList.add(scrollPane, gbc_scrollPane);
+		
+		create_laundry_table(scrollPane);
+		laundryTable.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent mouseEvent) {
+				JTable table = (JTable) mouseEvent.getSource();
+				Point point = mouseEvent.getPoint();
+				int row = table.rowAtPoint(point);
+				int column = table.columnAtPoint(point);
+				if (mouseEvent.getClickCount() == 2) {
+					if (column == 1) {
+						//Bring up the client info page
+						
+						System.out.println("Client page");
+					} else if (column == 5) {
+						//Bring up the edit/view notes page
+						//debug.show_note_prompt("laundry_loads", String.valueOf(laundry_id), "Laundry Note", "These are all the notes about the current load of laundry.", options);
+
+						debug.print("Notes page");
+					} else {
+						//Tell user they can't double click here.
+						debug.show_error("No Double click", "You can't double click this column.");
+					}
+				}
+			}
+		});
+		
+		JButton btnMarkLoadComplete = new JButton("Mark Load Complete");
+		GridBagConstraints gbc_btnMarkLoadComplete = new GridBagConstraints();
+		gbc_btnMarkLoadComplete.gridwidth = 2;
+		gbc_btnMarkLoadComplete.insets = new Insets(0, 0, 5, 5);
+		gbc_btnMarkLoadComplete.gridx = 0;
+		gbc_btnMarkLoadComplete.gridy = 1;
+		panelLaundryList.add(btnMarkLoadComplete, gbc_btnMarkLoadComplete);
+		btnMarkLoadComplete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					//Select highlighted id from the table
+					int laundry_id = (int) laundryTable.getValueAt(laundryTable.getSelectedRow(), 0);
+					String client_id = (String) laundryTable.getValueAt(laundryTable.getSelectedRow(), 6);
+					edit_laundry("markComplete", laundry_id, client_id, bWelcomeScreenWindow.getCurrUser());
+					//Refresh the table
+						//Don't update the client's today or outstanding load value
+					cMainDashboardWindow.update_table();
+				} catch (java.lang.ArrayIndexOutOfBoundsException e) {
+					debug.show_error("No Selection", "Please select a row from the table!");
+				}
+			}
+		});
+
+		
+		JButton btnMarkPickedUp = new JButton("Mark Picked Up");
+		GridBagConstraints gbc_btnMarkPickedUp = new GridBagConstraints();
+		gbc_btnMarkPickedUp.gridwidth = 2;
+		gbc_btnMarkPickedUp.insets = new Insets(0, 0, 5, 5);
+		gbc_btnMarkPickedUp.gridx = 0;
+		gbc_btnMarkPickedUp.gridy = 2;
+		panelLaundryList.add(btnMarkPickedUp, gbc_btnMarkPickedUp);
+		btnMarkPickedUp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					//Select highlighted id from the table
+					int laundryIDD = (int) laundryTable.getValueAt(laundryTable.getSelectedRow(), 0);
+					System.out.println("LAUNDRYID: " + laundryIDD);
+					String clientIDD = (String) laundryTable.getValueAt(laundryTable.getSelectedRow(), 6);
+					System.out.println("CLIENTID: " + clientIDD);
+					int laundry_id = (int) laundryTable.getValueAt(laundryTable.getSelectedRow(), 0);
+					String client_id = (String) laundryTable.getValueAt(laundryTable.getSelectedRow(), 6);
+					edit_laundry("pickup", laundry_id, client_id, bWelcomeScreenWindow.getCurrUser());
+					//Refresh the table
+						//Don't update the client's today or outstanding load value
+					cMainDashboardWindow.update_table();
+				} catch (java.lang.ArrayIndexOutOfBoundsException e) {
+					debug.show_error("No Selection", "Please select a row from the table!");
+				}
+			}
+		});
+
+		
+		JLabel lblFilters = new JLabel("Filters");
+		lblFilters.setFont(new Font("Tahoma", Font.BOLD, 11));
+		GridBagConstraints gbc_lblFilters = new GridBagConstraints();
+		gbc_lblFilters.gridwidth = 2;
+		gbc_lblFilters.insets = new Insets(0, 0, 5, 5);
+		gbc_lblFilters.gridx = 0;
+		gbc_lblFilters.gridy = 5;
+		panelLaundryList.add(lblFilters, gbc_lblFilters);
+		
+		JLabel lblEarliestDate = new JLabel("Earliest Date");
+		GridBagConstraints gbc_lblEarliestDate = new GridBagConstraints();
+		gbc_lblEarliestDate.anchor = GridBagConstraints.EAST;
+		gbc_lblEarliestDate.insets = new Insets(0, 0, 5, 5);
+		gbc_lblEarliestDate.gridx = 0;
+		gbc_lblEarliestDate.gridy = 6;
+		panelLaundryList.add(lblEarliestDate, gbc_lblEarliestDate);
+		
+		JDateChooser dateChooser = new JDateChooser();
+		GridBagConstraints gbc_dateChooser = new GridBagConstraints();
+		gbc_dateChooser.insets = new Insets(0, 0, 5, 5);
+		gbc_dateChooser.fill = GridBagConstraints.BOTH;
+		gbc_dateChooser.gridx = 1;
+		gbc_dateChooser.gridy = 6;
+		panelLaundryList.add(dateChooser, gbc_dateChooser);
 				
+		JLabel lblLatestDate = new JLabel("Latest Date");
+		GridBagConstraints gbc_lblLatestDate = new GridBagConstraints();
+		gbc_lblLatestDate.anchor = GridBagConstraints.EAST;
+		gbc_lblLatestDate.insets = new Insets(0, 0, 5, 5);
+		gbc_lblLatestDate.gridx = 0;
+		gbc_lblLatestDate.gridy = 7;
+		panelLaundryList.add(lblLatestDate, gbc_lblLatestDate);
+		
+		JDateChooser dateChooser_1 = new JDateChooser();
+		GridBagConstraints gbc_dateChooser_1 = new GridBagConstraints();
+		gbc_dateChooser_1.insets = new Insets(0, 0, 5, 5);
+		gbc_dateChooser_1.fill = GridBagConstraints.BOTH;
+		gbc_dateChooser_1.gridx = 1;
+		gbc_dateChooser_1.gridy = 7;
+		panelLaundryList.add(dateChooser_1, gbc_dateChooser_1);
+		
+		JCheckBox chckbxComplete = new JCheckBox("Completed");
+		GridBagConstraints gbc_chckbxComplete = new GridBagConstraints();
+		gbc_chckbxComplete.gridwidth = 2;
+		gbc_chckbxComplete.insets = new Insets(0, 0, 5, 5);
+		gbc_chckbxComplete.gridx = 0;
+		gbc_chckbxComplete.gridy = 8;
+		panelLaundryList.add(chckbxComplete, gbc_chckbxComplete);
+		
+		JCheckBox chckbxPickedUp = new JCheckBox("Picked Up");
+		GridBagConstraints gbc_chckbxPickedUp = new GridBagConstraints();
+		gbc_chckbxPickedUp.gridwidth = 2;
+		gbc_chckbxPickedUp.insets = new Insets(0, 0, 5, 5);
+		gbc_chckbxPickedUp.gridx = 0;
+		gbc_chckbxPickedUp.gridy = 9;
+		panelLaundryList.add(chckbxPickedUp, gbc_chckbxPickedUp);
+		
+		JCheckBox chckbxEligibleNow = new JCheckBox("Eligible Now");
+		GridBagConstraints gbc_chckbxEligibleNow = new GridBagConstraints();
+		gbc_chckbxEligibleNow.gridwidth = 2;
+		gbc_chckbxEligibleNow.insets = new Insets(0, 0, 5, 5);
+		gbc_chckbxEligibleNow.gridx = 0;
+		gbc_chckbxEligibleNow.gridy = 10;
+		panelLaundryList.add(chckbxEligibleNow, gbc_chckbxEligibleNow);
+		
+		JLabel lblFirstNameFilter = new JLabel("First Name");
+		GridBagConstraints gbc_lblFirstNameFilter = new GridBagConstraints();
+		gbc_lblFirstNameFilter.anchor = GridBagConstraints.EAST;
+		gbc_lblFirstNameFilter.insets = new Insets(0, 0, 5, 5);
+		gbc_lblFirstNameFilter.gridx = 0;
+		gbc_lblFirstNameFilter.gridy = 11;
+		panelLaundryList.add(lblFirstNameFilter, gbc_lblFirstNameFilter);
+		
+		textFieldFName = new JTextField();
+		GridBagConstraints gbc_textFieldFName = new GridBagConstraints();
+		gbc_textFieldFName.insets = new Insets(0, 0, 5, 5);
+		gbc_textFieldFName.fill = GridBagConstraints.HORIZONTAL;
+		gbc_textFieldFName.gridx = 1;
+		gbc_textFieldFName.gridy = 11;
+		panelLaundryList.add(textFieldFName, gbc_textFieldFName);
+		textFieldFName.setColumns(10);
+		
+		JLabel lblLastNameFilter = new JLabel("Last Name");
+		GridBagConstraints gbc_lblLastNameFilter = new GridBagConstraints();
+		gbc_lblLastNameFilter.anchor = GridBagConstraints.EAST;
+		gbc_lblLastNameFilter.insets = new Insets(0, 0, 5, 5);
+		gbc_lblLastNameFilter.gridx = 0;
+		gbc_lblLastNameFilter.gridy = 12;
+		panelLaundryList.add(lblLastNameFilter, gbc_lblLastNameFilter);
+		
+		textFieldLName = new JTextField();
+		GridBagConstraints gbc_textFieldLName = new GridBagConstraints();
+		gbc_textFieldLName.insets = new Insets(0, 0, 5, 5);
+		gbc_textFieldLName.fill = GridBagConstraints.HORIZONTAL;
+		gbc_textFieldLName.gridx = 1;
+		gbc_textFieldLName.gridy = 12;
+		panelLaundryList.add(textFieldLName, gbc_textFieldLName);
+		textFieldLName.setColumns(10);
+		
+		JButton btnApplyFilters = new JButton("Apply Filters");
+		GridBagConstraints gbc_btnApplyFilters = new GridBagConstraints();
+		gbc_btnApplyFilters.gridwidth = 2;
+		gbc_btnApplyFilters.insets = new Insets(0, 0, 5, 5);
+		gbc_btnApplyFilters.gridx = 0;
+		gbc_btnApplyFilters.gridy = 13;
+		panelLaundryList.add(btnApplyFilters, gbc_btnApplyFilters);
+		
+		JButton btnGenerateReport = new JButton("Generate Report");
+		GridBagConstraints gbc_btnGenerateReport = new GridBagConstraints();
+		gbc_btnGenerateReport.gridwidth = 2;
+		gbc_btnGenerateReport.insets = new Insets(0, 0, 5, 5);
+		gbc_btnGenerateReport.gridx = 0;
+		gbc_btnGenerateReport.gridy = 14;
+		panelLaundryList.add(btnGenerateReport, gbc_btnGenerateReport);
+		
+		
 		tabbedPane.add("Add Client", panelAddClient);
-		GridBagLayout gbl_viewAddClient = new GridBagLayout();
-		gbl_viewAddClient.columnWidths = new int[]{0, 0, 0};
-		gbl_viewAddClient.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_viewAddClient.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
-		gbl_viewAddClient.rowWeights = new double[]{0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE};
-		panelAddClient.setLayout(gbl_viewAddClient);
+		GridBagLayout gbl_panelAddClient = new GridBagLayout();
+		gbl_panelAddClient.columnWidths = new int[]{0, 0, 0};
+		gbl_panelAddClient.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_panelAddClient.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
+		gbl_panelAddClient.rowWeights = new double[]{0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE};
+		panelAddClient.setLayout(gbl_panelAddClient);
 		
 		JLabel lblFirstName = new JLabel("*First Name");
 		GridBagConstraints gbc_lblFirstName = new GridBagConstraints();
@@ -258,21 +470,22 @@ public class cMainDashboardWindow extends JFrame {
 		
 		JLabel lblNotes = new JLabel("Notes");
 		GridBagConstraints gbc_lblNotes = new GridBagConstraints();
+		gbc_lblNotes.anchor = GridBagConstraints.EAST;
 		gbc_lblNotes.insets = new Insets(0, 0, 5, 5);
 		gbc_lblNotes.gridx = 0;
 		gbc_lblNotes.gridy = 12;
 		panelAddClient.add(lblNotes, gbc_lblNotes);
 		
-		JTextArea txtrNotes = new JTextArea();
-		txtrNotes.setToolTipText("Add any special notes here.");
-		txtrNotes.setWrapStyleWord(true);
-		txtrNotes.setLineWrap(true);
-		GridBagConstraints gbc_txtrNotes = new GridBagConstraints();
-		gbc_txtrNotes.insets = new Insets(0, 0, 5, 0);
-		gbc_txtrNotes.fill = GridBagConstraints.BOTH;
-		gbc_txtrNotes.gridx = 1;
-		gbc_txtrNotes.gridy = 12;
-		panelAddClient.add(txtrNotes, gbc_txtrNotes);
+		JTextArea txtNotes = new JTextArea();
+		txtNotes.setToolTipText("Add any special notes here.");
+		txtNotes.setWrapStyleWord(true);
+		txtNotes.setLineWrap(true);
+		GridBagConstraints gbc_txtNotes = new GridBagConstraints();
+		gbc_txtNotes.insets = new Insets(0, 0, 5, 0);
+		gbc_txtNotes.fill = GridBagConstraints.BOTH;
+		gbc_txtNotes.gridx = 1;
+		gbc_txtNotes.gridy = 12;
+		panelAddClient.add(txtNotes, gbc_txtNotes);
 		GridBagConstraints gbc_btnAdd = new GridBagConstraints();
 		gbc_btnAdd.anchor = GridBagConstraints.WEST;
 		gbc_btnAdd.gridx = 1;
@@ -321,6 +534,7 @@ public class cMainDashboardWindow extends JFrame {
 				String fName = txtFname.getText();
 				String lName = txtLname.getText();
 				String phone_number = ftfPhone.getText();
+				String notes = txtNotes.getText();
 				boolean monday = chckbxMonday.isSelected();
 				boolean tuesday = chckbxTuesday.isSelected();
 				boolean wednesday = chckbxWednesday.isSelected();
@@ -339,7 +553,11 @@ public class cMainDashboardWindow extends JFrame {
 				eligibility.put("friday", friday);
 				eligibility.put("saturday", saturday);
 				eligibility.put("sunday", sunday);
-				success = zDatabaseHandlerBackend.addClient(fName, lName, phone_number, eligibility);
+				if(notes != null) {
+					success = zDatabaseHandlerBackend.addClient(fName, lName, phone_number, eligibility, notes);
+				} else {
+					success = zDatabaseHandlerBackend.addClient(fName, lName, phone_number, eligibility);
+				}
 				if(success){
 					txtFname.setText("");
 					txtLname.setText("");
@@ -352,6 +570,19 @@ public class cMainDashboardWindow extends JFrame {
 				}
 			}
 		});
+		
+		JButton btnUpdate = new JButton("Update");
+		btnUpdate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("UPDATE clients set ... WHERE fName = AND lName = ...");
+			}
+		});
+		GridBagConstraints gbc_btnUpdate = new GridBagConstraints();
+		gbc_btnUpdate.anchor = GridBagConstraints.WEST;
+		gbc_btnUpdate.insets = new Insets(0, 0, 0, 5);
+		gbc_btnUpdate.gridx = 0;
+		gbc_btnUpdate.gridy = 13;
+		panelAddClient.add(btnUpdate, gbc_btnUpdate);
 		
 		panelAddClient.add(btnAdd, gbc_btnAdd);
 		
@@ -379,7 +610,7 @@ public class cMainDashboardWindow extends JFrame {
 				zzzzzzzzSendEmailBackend.setupAndSend(subject, body, from, password, toArray, username);				
 			}
 		});
-*/		recipientsPane.setLayout(null);
+*/		//recipientsPane.setLayout(null);
 				
 /*		recipientsPane.add(btnSend);
 */		GroupLayout groupLayout = new GroupLayout(getContentPane());
@@ -394,36 +625,124 @@ public class cMainDashboardWindow extends JFrame {
 		getContentPane().setLayout(groupLayout);
 	}
 		
-/*	public static void sendMessage(String[] recipients, String ownerEmail)
-	{
-		String body = txtareaMessage.getText();
-		String subject = txtSubject.getText();
-		String userNameArray[] = ownerEmail.split("[@]");
-		String userName = userNameArray[0];
-		String password = JOptionPane.showInputDialog("Please enter your email account password: ");
-		System.out.println("");
-		System.out.println("cMainDashboardWindow.java: sendMessage: ");
-		for(int i=0; i<recipients.length; i++){
-			System.out.println(recipients[i]);
+protected void edit_laundry(String editType, int laundry_id, String client_id, String current_user) {
+	boolean proceed = true;
+	String[] options = {"Add This Note", "No Note"};
+	debug.show_note_prompt("laundry_loads", String.valueOf(laundry_id), "Laundry Note", "Would you like to add a note to this laundry entry?", options);
+	debug.show_note_prompt("clients", client_id, "Client Note", "Would you like to add a note to this client's profile?", options); 
+	if(editType == "pickup") {
+		System.out.println("pickingup");
+		//Check to make sure the laundry is marked as complete.
+		String check_complete = "SELECT load_complete FROM laundry_loads WHERE id = " + laundry_id;
+		ResultSet complete_check = zDatabaseHandlerBackend.select(check_complete);
+		try {
+			complete_check.next();
+			if(complete_check.getDate("load_complete") == null) {
+				int choice = debug.show_warning("Laundry not completed.", "The laundry is not marked as complete. Would you like to mark it complete first?");
+				if(choice == 0) {
+					edit_laundry("markComplete", laundry_id, client_id, current_user);
+				} else if(choice == 2) {
+					proceed = false;
+				}
+			}
+		} catch (SQLException e) {
+			debug.show_error("Error retrieving laundry_load", "Could not retrieve laundry_load data.");
+			e.printStackTrace();
 		}
-		System.out.println("");
-		zzzzzzzzSendEmailBackend.setupAndSend(subject, body, ownerEmail, password, recipients, userName);
-	}
-*/	
-	private static void show_error(String title, Object message)
-	{
-		JOptionPane.showConfirmDialog(null, message, title, -1);
-	}
-	
-	private static int show_warning(String title, Object message)
-	{
-		int selection = JOptionPane.showConfirmDialog(null, message, title, 0);
-		// 0=yes; 1=no
-		return selection;
+		if (proceed) {
+			String mark_laundry_picked_up = "UPDATE laundry_loads SET pick_up = CURRENT_TIMESTAMP, pick_up_sig = '" + bWelcomeScreenWindow.getCurrUser() + "' WHERE id = " + laundry_id;
+			zDatabaseHandlerBackend.updateEntry(mark_laundry_picked_up);
+		} else {
+			debug.show_error("Action Canceled", "No edit will be made to the laundry load.");
+		}
+	} else if(editType == "markComplete") {
+		String mark_laundry_complete = "UPDATE laundry_loads SET load_complete = CURRENT_TIMESTAMP, load_complete_sig = '" + bWelcomeScreenWindow.getCurrUser() + "' WHERE id = " + laundry_id;
+		zDatabaseHandlerBackend.updateEntry(mark_laundry_complete);
 	}
 	
-	public static void UPDATETABLE(){
-		tableContentPane.updateTable();
+		
+}
+
+private static void create_laundry_table(JScrollPane scrollPane) {
+	try {
+		laundryTable = new JTable(buildTableModel());
+	} catch (SQLException e) {
+		e.printStackTrace();
 	}
+	laundryTable.setBackground(Color.WHITE);
+	laundryTable.setColumnSelectionAllowed(false);
+	laundryTable.setRowSelectionAllowed(true);
+	laundryTable.setFillsViewportHeight(true);
+	laundryTable.setBorder(new MatteBorder(1, 2, 2, 2, (Color) new Color(0, 0, 0)));
+	laundryTable.setUpdateSelectionOnSort(true);
+/*	laundryTable.setEnabled(false);
+*/	scrollPane.setViewportView(laundryTable);
+
+}
+
+private static DefaultTableModel buildTableModel() throws SQLException {	
+	String laundry_query = "SELECT laundry_loads.id, CONCAT(fName, ' ', lName) AS Name, CONCAT(drop_off) AS 'Dropped Off On', CONCAT(load_complete) AS 'Completed On', CONCAT(pick_up) AS 'Picked Up On', CONCAT(laundry_loads.notes) AS 'Note', CONCAT(clients.id) AS 'Client ID' FROM laundry_loads JOIN clients ON laundry_loads.client_id = clients.id";
+	ResultSet rs = zDatabaseHandlerBackend.select(laundry_query);
+	ResultSetMetaData metaData = rs.getMetaData();
+	
+	//names of columns:
+	Vector<String> columnNames = new Vector<String>();
+	int colCount = metaData.getColumnCount();
+	for (int column = 1; column <= colCount; column++) {
+		columnNames.add(metaData.getColumnName(column));
+	}
+	
+	//data of the table
+	Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+	while (rs.next()) {
+		Vector<Object> vector = new Vector<Object>();
+		for (int columnIndex = 1; columnIndex <= colCount; columnIndex++) {
+			vector.add(rs.getObject(columnIndex));
+		}
+		data.add(vector);
+	}
+		return new DefaultTableModel(data, columnNames) {
+			private static final long serialVersionUID = 8365935879746194659L;
+			@Override
+		    //This makes it so users can't edit the table values.
+		    public boolean isCellEditable(int i, int i1) {
+		        return false;
+		    }
+		};
+}
+	
+public static void update_table(){
+	create_laundry_table(scrollPane);
+}
+
+private static void show_error(String title, Object message)
+{
+	JOptionPane.showConfirmDialog(null, message, title, -1);
+}
+
+private static int show_warning(String title, Object message)
+{
+	int selection = JOptionPane.showConfirmDialog(null, message, title, 0);
+	// 0=yes; 1=no
+	return selection;
+}
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					cMainDashboardWindow frame = new cMainDashboardWindow();
+					frame.setVisible(true);
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
 
 }

@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.Map;
 
@@ -116,7 +117,8 @@ public class zDatabaseHandlerBackend {
 					"friday bool NOT NULL DEFAULT TRUE, " + 
 					"saturday bool NOT NULL DEFAULT TRUE, " + 
 					"sunday bool NOT NULL DEFAULT TRUE, " + 
-					"today bool NOT NULL DEFAULT TRUE COMMENT 'This will save the state of a clients laundry for the current day. At midnight, all clients today statuses will reset to TRUE'," +
+					"today bool NOT NULL DEFAULT TRUE COMMENT 'This will save the state of a clients laundry for the current day. At midnight, all clients today statuses will reset to TRUE', " +
+					"outstandingLoads bool NOT NULL DEFAULT FALSE COMMENT 'This indicates if a user has any loads they havent picked up yet. True means they have dropped off or completed loads that havent been picked up. False means theyre all caught up and good to go!', " +
 					"notes BLOB)";
 
 			String createLaundryLoads = "CREATE TABLE IF NOT EXISTS laundry_loads(" +
@@ -128,7 +130,12 @@ public class zDatabaseHandlerBackend {
 					"load_complete_sig varChar(15) COMMENT 'This is the username of the person who marked the load as completed (aka ready for pickup).', " +
 					"pick_up datetime, " +
 					"pick_up_sig varChar(15) COMMENT 'This is the username of the person who handed the laundry to the client.', " +
+					"notes BLOB, " +
 					"FOREIGN KEY(client_id) REFERENCES clients(id) ON DELETE CASCADE ON UPDATE CASCADE)";
+			
+			String insertClients = "INSERT INTO clients (fName, lName) VALUES ('Tim', 'Miller')";
+			String insertUsers = "INSERT INTO users (userName, pWordSaltHash, email, fName, lName, salt) VALUES ('km', 'km', 'km@km', 'kim', 'last', 'salt')";
+			String insertLaundryLoads = "INSERT INTO laundry_loads (client_id, drop_off_signature) VALUES (1,'km'), (1,'km')";
 			
 			String createClientsArchive = "CREATE TABLE IF NOT EXISTS clients_archive(" +
 					"id INT PRIMARY KEY AUTO_INCREMENT, " + 
@@ -141,7 +148,9 @@ public class zDatabaseHandlerBackend {
 					"friday bool NOT NULL DEFAULT TRUE, " + 
 					"saturday bool NOT NULL DEFAULT TRUE, " + 
 					"sunday bool NOT NULL DEFAULT TRUE, " + 
-					"today bool NOT NULL DEFAULT TRUE COMMENT 'This will save the state of a clients laundry for the current day. At midnight, all clients today statuses will reset to TRUE')";
+					"today bool NOT NULL DEFAULT TRUE COMMENT 'This will save the state of a clients laundry for the current day. At midnight, all clients today statuses will reset to TRUE', " +
+					"outstandingLoads bool NOT NULL DEFAULT FALSE COMMENT 'This indicates if a user has any loads they havent picked up yet. True means they have dropped off or completed loads that havent been picked up. False means theyre all caught up and good to go!', " +
+					"notes BLOB)";
 			
 			String createLaundryLoadsArchive = "CREATE TABLE IF NOT EXISTS laundry_loads_archive("
 					+ "id INT PRIMARY KEY AUTO_INCREMENT, "
@@ -152,6 +161,7 @@ public class zDatabaseHandlerBackend {
 					+ "load_complete_sig varChar(15) COMMENT 'This is the username of the person who marked the load as completed (aka ready for pickup).', "
 					+ "pick_up datetime, "
 					+ "pick_up_sig varChar(15) COMMENT 'This is the username of the person who handed the laundry to the client.', "
+					+ "notes BLOB, "
 					+ "FOREIGN KEY(client_id) REFERENCES clients_archive(id) ON DELETE CASCADE ON UPDATE CASCADE)";
 			
 			stmtCreateT.executeUpdate("DROP TABLE IF EXISTS users");
@@ -174,6 +184,10 @@ public class zDatabaseHandlerBackend {
 			System.out.println("Successfully created the clients archive table.");
 			stmtCreateT.executeUpdate(createLaundryLoadsArchive);
 			System.out.println("Successfully created the laundry loads archive table.");
+			stmtCreateT.execute(insertClients);
+			stmtCreateT.execute(insertUsers);
+			stmtCreateT.execute(insertLaundryLoads);
+			
 		} catch(SQLException e1) {
 			//e1.printStackTrace();
 			show_error("Error creating database tables", e1);
@@ -314,9 +328,26 @@ public class zDatabaseHandlerBackend {
 		return pWordSaltHashStr;
 	}
 	
-	public static boolean addClient(String fName, String lName, String phone_number, Map<String, Boolean> eligibility) {
+	public static boolean addClient(String fName, String lName, String phone_number, Map<String, Boolean> eligibility, String notes) {
 		boolean worked = true;
 		//System.out.println("Current User from zDatabaseHandlerBackend Class: " + currentUser);
+		String insertClient = "INSERT INTO clients(fName, lName, monday, tuesday, wednesday, thursday, friday, saturday, sunday, notes) VALUES ('"
+				+ fName + "', '" + lName + "', " + eligibility.get("monday") + ", " + eligibility.get("tuesday") + ", " + eligibility.get("wednesday") + ", " + eligibility.get("thursday") + ", " + eligibility.get("friday") + ", " + eligibility.get("saturday") + ", " + eligibility.get("sunday") + ", '" + notes + "')";
+		System.out.println(insertClient);
+		Connection dbConn = connect_db();
+		try{
+			Statement insert = dbConn.createStatement();
+			insert.executeUpdate(insertClient, Statement.RETURN_GENERATED_KEYS);		    
+		} catch (SQLException e) {
+			worked = false;
+			show_error("Insert Error. Please try again. If error continues, contact the developer.", e);
+			e.printStackTrace();
+		}
+		return worked;
+	}
+
+	public static boolean addClient(String fName, String lName, String phone_number, Map<String, Boolean> eligibility) {
+		boolean worked = true;
 		String insertClient = "INSERT INTO clients(fName, lName, monday, tuesday, wednesday, thursday, friday, saturday, sunday) VALUES ('"
 				+ fName + "', '" + lName + "', " + eligibility.get("monday") + ", " + eligibility.get("tuesday") + ", " + eligibility.get("wednesday") + ", " + eligibility.get("thursday") + ", " + eligibility.get("friday") + ", " + eligibility.get("saturday") + ", " + eligibility.get("sunday") + ")";
 		System.out.println(insertClient);
@@ -331,23 +362,78 @@ public class zDatabaseHandlerBackend {
 		}
 		return worked;
 	}
-
-	public static boolean addLaundryLoad(int client_id, String drop_off_date, String drop_off_sig) {
+	
+	public static boolean addLaundryLoad(int client_id, java.util.Date dropOffDate, String drop_off_sig, String notes) {
 		boolean worked = true;
-		String insertLaundryLoad = "INSERT INTO laundry_loads(client_id, drop_off, drop_off_sig) VALUES ('"
-				+ client_id + "', '" + drop_off_date + "', '" + drop_off_sig + "'";
-		
-		Connection dbConn = connect_db();
+		java.sql.Date sqlDate = null;
 		try {
-			Statement insert = dbConn.createStatement();
-			insert.executeUpdate(insertLaundryLoad, Statement.RETURN_GENERATED_KEYS);
-		} catch (SQLException e) {
+			sqlDate = new java.sql.Date(dropOffDate.getTime());
+			String insertLaundryLoad = "INSERT INTO laundry_loads(client_id, drop_off, drop_off_signature, notes) VALUES ('"
+					+ client_id + "', '" + sqlDate + "', '" + drop_off_sig + "', '" + notes + "')";
+			System.out.println("************************");
+			System.out.println(insertLaundryLoad);
+			Connection dbConn = connect_db();
+			try {
+				Statement insert = dbConn.createStatement();
+				insert.executeUpdate(insertLaundryLoad, Statement.RETURN_GENERATED_KEYS);
+			} catch (SQLException e) {
+				worked = false;
+				System.out.println(e);
+				show_error("Insert laundry_load error. Please try again. If error continues, contact the developer.", e);
+			}
+		} catch (java.lang.NullPointerException e) {
 			worked = false;
-			show_error("Insert laundry_load error. Please try again. If error continues, contact the developer.", e);
+			debug.show_error("Choose a date", "You must choose a dropoff date!");
 		}
 		return worked;
 	}
 	
+	public static boolean addLaundryLoad(int client_id, java.util.Date dropOffDate, String drop_off_sig) {
+		boolean worked = true;
+		java.sql.Date sqlDate = null;
+		try {
+			sqlDate = new java.sql.Date(dropOffDate.getTime());
+			String insertLaundryLoad = "INSERT INTO laundry_loads(client_id, drop_off, drop_off_signature) VALUES ('"
+					+ client_id + "', '" + sqlDate + "', '" + drop_off_sig + "')";
+			Connection dbConn = connect_db();
+			try {
+				Statement insert = dbConn.createStatement();
+				insert.executeUpdate(insertLaundryLoad, Statement.RETURN_GENERATED_KEYS);
+			} catch (SQLException e) {
+				worked = false;
+				System.out.println(e);
+				show_error("Insert laundry_load error. Please try again. If error continues, contact the developer.", e);
+			}
+		} catch (java.lang.NullPointerException e) {
+			worked = false;
+			debug.show_error("Choose a date", "You must choose a dropoff date!");
+		}
+		return worked;
+	}
+	
+	public static boolean updateEntry(String mark_laundry_complete) {
+		//Run any db query that starts with UPDATE
+		debug.print(mark_laundry_complete);
+		boolean worked = true;
+		try {
+			Connection dbConn = connect_db();
+			try {
+				Statement update = dbConn.createStatement();
+				System.out.println(update);
+				int result = update.executeUpdate(mark_laundry_complete);
+				System.out.println("Result: " + result);
+			} catch (SQLException e) {
+				worked = false;
+				System.out.println(e);
+				show_error("Update failed.", "Update failed. Please try again.");
+			}
+		} catch (java.lang.NullPointerException e) {
+			worked = false;
+			debug.show_error("Connection error", "Couldn't connect to the database.");
+		}
+		return worked;
+	}
+
 	public static void delete(String delete){
 		Connection dbConn = connect_db();
 		Statement stDelete = null;
@@ -362,6 +448,21 @@ public class zDatabaseHandlerBackend {
 			e.printStackTrace();
 		}
 
+	}
+	
+	public static void update(String update) {
+		Connection dbConn = connect_db();
+		Statement stUpdate = null;
+		try { 
+			stUpdate = dbConn.createStatement();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try {
+			stUpdate.executeUpdate(update);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static ResultSet select(String sql) {
@@ -409,5 +510,6 @@ public class zDatabaseHandlerBackend {
 		}
 */		
 	}
+
 	
 }

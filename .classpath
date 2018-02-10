@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="external_jars/jdbc7.0-1.1.jar"/>
 	<classpathentry kind="lib" path="external_jars/mysql-connector-java-5.1.35-bin.jar"/>
 	<classpathentry kind="lib" path="external_jars/postgresql-9.4-1201.jdbc4.jar"/>
+	<classpathentry kind="lib" path="jcalendar-1.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

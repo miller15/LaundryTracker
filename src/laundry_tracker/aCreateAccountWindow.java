@@ -112,6 +112,11 @@ public class aCreateAccountWindow extends JFrame {
 		txtEmail.setColumns(10);
 		
 		JButton btnCancel = new JButton("Cancel");
+		btnCancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frmCreateaccount.dispose();
+			}
+		});
 		frmCreateaccount.getContentPane().add(btnCancel, "cell 2 9,alignx left");
 
 		JButton btnRegister = new JButton("Register");

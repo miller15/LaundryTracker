@@ -79,7 +79,7 @@ public class bWelcomeScreenWindow {
 		JTextArea txtpnTitle = new JTextArea();
 		txtpnTitle.setEditable(false);
 		txtpnTitle.setFont(new Font("Shannon Extra Bold", Font.BOLD, 15));
-		txtpnTitle.setText("Welcome to the\n Lamb Center's laundry tracking tool!");
+		txtpnTitle.setText("\tWelcome to the\r\n Lamb Center's laundry tracking tool!");
 		GridBagConstraints gbc_txtpnTitle = new GridBagConstraints();
 		gbc_txtpnTitle.anchor = GridBagConstraints.NORTH;
 		gbc_txtpnTitle.gridwidth = 5;
@@ -135,9 +135,13 @@ public class bWelcomeScreenWindow {
 		frmLogin.getContentPane().add(pwdPwd, gbc_pwdPwd);
 		
 		JButton btnLogin = new JButton("Login");
-		btnLogin.addMouseListener(new MouseAdapter() {
+		btnLogin.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		btnLogin.addActionListener(new ActionListener() {
 			@Override
-			public void mouseClicked(MouseEvent arg0) {
+			public void actionPerformed(ActionEvent event) {
 				/*check the user's account info and if it is correct,
 				 *then proceed to the message tab (cMainDashboardWindow.java).
 				 */
@@ -175,6 +179,8 @@ public class bWelcomeScreenWindow {
 					if(!Password.isExpectedPassword(pwd, salt, pWordSaltHash)) {
 						allowAccess = false;
 					} else {
+						setCurrUser(currUser);
+						frmLogin.dispose();
 						cMainDashboardWindow.runMessageTabs();
 					}
 
@@ -222,6 +228,8 @@ public class bWelcomeScreenWindow {
 		gbc_btnForgotPassword.gridx = 2;
 		gbc_btnForgotPassword.gridy = 6;
 		frmLogin.getContentPane().add(btnForgotPassword, gbc_btnForgotPassword);
+		
+		txtUname.setCursor(frmLogin.getCursor());
 	}
 	
 	public static String getCurrUser(){
