@@ -102,7 +102,7 @@ public class cMainDashboardWindow extends JFrame {
 		gbl_viewLaundryList.rowWeights = new double[]{0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		panelLaundryList.setLayout(gbl_viewLaundryList);
 		
-		JButton btnDropoffNewLoad = new JButton("Drop-off New Load");
+		JButton btnDropoffNewLoad = new JButton("Drop off New Load");
 		btnDropoffNewLoad.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				new gDropoffWindow();
@@ -165,7 +165,7 @@ public class cMainDashboardWindow extends JFrame {
 					String client_id = (String) laundryTable.getValueAt(laundryTable.getSelectedRow(), 6);
 					edit_laundry("markComplete", laundry_id, client_id, bWelcomeScreenWindow.getCurrUser());
 					//Refresh the table
-						//Don't update the client's today or outstanding load value
+						//Don't update the client's eligible_today or outstanding load value
 					cMainDashboardWindow.update_table();
 				} catch (java.lang.ArrayIndexOutOfBoundsException e) {
 					debug.show_error("No Selection", "Please select a row from the table!");
@@ -189,7 +189,7 @@ public class cMainDashboardWindow extends JFrame {
 					String client_id = (String) laundryTable.getValueAt(laundryTable.getSelectedRow(), 6);
 					edit_laundry("pickup", laundry_id, client_id, bWelcomeScreenWindow.getCurrUser());
 					//Refresh the table
-						//Don't update the client's today or outstanding load value
+						//Don't update the client's eligible_today or outstanding load value
 					cMainDashboardWindow.update_table();
 				} catch (java.lang.ArrayIndexOutOfBoundsException e) {
 					debug.show_error("No Selection", "Please select a row from the table!");
@@ -551,7 +551,7 @@ public class cMainDashboardWindow extends JFrame {
 				eligibility.put("friday", friday);
 				eligibility.put("saturday", saturday);
 				eligibility.put("sunday", sunday);
-				if(notes != null) {
+				if(!notes.isEmpty()) {
 					success = zDatabaseHandlerBackend.addClient(fName, lName, phone_number, eligibility, notes);
 				} else {
 					success = zDatabaseHandlerBackend.addClient(fName, lName, phone_number, eligibility);
@@ -572,7 +572,7 @@ public class cMainDashboardWindow extends JFrame {
 		JButton btnUpdate = new JButton("Update");
 		btnUpdate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("UPDATE clients set ... WHERE fName = AND lName = ...");
+				System.out.println("TO_DO: UPDATE clients set ... WHERE fName = AND lName = ...");
 			}
 		});
 		GridBagConstraints gbc_btnUpdate = new GridBagConstraints();
@@ -642,7 +642,8 @@ protected void edit_laundry(String editType, int laundry_id, String client_id, S
 				} else if(choice == 2) {
 					proceed = false;
 				}
-			}
+			} 
+			complete_check.close();
 		} catch (SQLException e) {
 			debug.show_error("Error retrieving laundry_load", "Could not retrieve laundry_load data.");
 			e.printStackTrace();
@@ -650,6 +651,7 @@ protected void edit_laundry(String editType, int laundry_id, String client_id, S
 		if (proceed) {
 			String mark_laundry_picked_up = "UPDATE laundry_loads SET pick_up = CURRENT_TIMESTAMP, pick_up_sig = '" + bWelcomeScreenWindow.getCurrUser() + "' WHERE id = " + laundry_id;
 			zDatabaseHandlerBackend.updateEntry(mark_laundry_picked_up);
+			eViewEditClientWindow.update_load_outstanding_flag(false, client_id);
 		} else {
 			debug.show_error("Action Canceled", "No edit will be made to the laundry load.");
 		}
@@ -672,6 +674,7 @@ private static void create_laundry_table(JScrollPane scrollPane) {
 	laundryTable.setRowSelectionAllowed(true);
 	laundryTable.setFillsViewportHeight(true);
 	laundryTable.setBorder(new MatteBorder(1, 2, 2, 2, (Color) new Color(0, 0, 0)));
+	laundryTable.setAutoCreateRowSorter(true);
 	laundryTable.setUpdateSelectionOnSort(true);
 	laundryTable.addMouseListener(new MouseAdapter() {
 		public void mousePressed(MouseEvent mouseEvent) {
@@ -732,7 +735,7 @@ private static DefaultTableModel buildTableModel() throws SQLException {
 			}
 		}
 		data.add(vector);
-	}
+	} rs.close();
 		return new DefaultTableModel(data, columnNames) {
 			private static final long serialVersionUID = 8365935879746194659L;
 			@Override

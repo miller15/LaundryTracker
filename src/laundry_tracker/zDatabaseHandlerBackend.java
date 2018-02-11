@@ -88,15 +88,18 @@ public class zDatabaseHandlerBackend {
 		} catch (SQLException e1) {
 			//e1.printStackTrace();
 			show_error("Error connecting to database", e1);
-		}
+		} /*finally{
+			disconnect_db(stmtCreateDB);
+		}*/
 		
 		return stmtCreateDB;
 	}
 	
 	private static void create_db_tables(Connection dbConn)
 	{
+		Statement stmtCreateT = null;
 		try{
-			Statement stmtCreateT = dbConn.createStatement();
+			stmtCreateT = dbConn.createStatement();
 
 			String createUsers = "CREATE TABLE IF NOT EXISTS users("
 					+ "userName VARCHAR(25) PRIMARY KEY, "
@@ -117,8 +120,9 @@ public class zDatabaseHandlerBackend {
 					"friday bool NOT NULL DEFAULT TRUE, " + 
 					"saturday bool NOT NULL DEFAULT TRUE, " + 
 					"sunday bool NOT NULL DEFAULT TRUE, " + 
-					"today bool NOT NULL DEFAULT TRUE COMMENT 'This will save the state of a clients laundry for the current day. At midnight, all clients today statuses will reset to TRUE', " +
-					"outstandingLoads bool NOT NULL DEFAULT FALSE COMMENT 'This indicates if a user has any loads they havent picked up yet. True means they have dropped off or completed loads that havent been picked up. False means theyre all caught up and good to go!', " +
+					//eligible_today value gets updated via Windows Task Scheduler event named UpdateTodayFlag. Bash script located in C:\ProgramData\MySQL\MySQL Server 5.7\ updateTodayFlag.sh
+					"eligible_today bool NOT NULL DEFAULT TRUE COMMENT 'This will save the state of a clients laundry for the current day. At midnight, all clients eligible_today statuses will reset to TRUE using an auto event created with windows task scheduler', " +
+					"load_outstanding bool NOT NULL DEFAULT FALSE COMMENT 'This indicates if a user has any loads they havent picked up yet. True means they have dropped off or completed loads that havent been picked up. False means theyre all caught up and good to go!', " +
 					"notes BLOB)";
 
 			String createLaundryLoads = "CREATE TABLE IF NOT EXISTS laundry_loads(" +
@@ -148,8 +152,8 @@ public class zDatabaseHandlerBackend {
 					"friday bool NOT NULL DEFAULT TRUE, " + 
 					"saturday bool NOT NULL DEFAULT TRUE, " + 
 					"sunday bool NOT NULL DEFAULT TRUE, " + 
-					"today bool NOT NULL DEFAULT TRUE COMMENT 'This will save the state of a clients laundry for the current day. At midnight, all clients today statuses will reset to TRUE', " +
-					"outstandingLoads bool NOT NULL DEFAULT FALSE COMMENT 'This indicates if a user has any loads they havent picked up yet. True means they have dropped off or completed loads that havent been picked up. False means theyre all caught up and good to go!', " +
+					"eligible_today bool NOT NULL DEFAULT TRUE COMMENT 'This will save the state of a clients laundry for the current day. Since its an archive, it does not get updated.', " +
+					"load_outstanding bool NOT NULL DEFAULT FALSE COMMENT 'This indicates if a user has any loads they havent picked up yet. True means they have dropped off or completed loads that havent been picked up. False means theyre all caught up and good to go!', " +
 					"notes BLOB)";
 			
 			String createLaundryLoadsArchive = "CREATE TABLE IF NOT EXISTS laundry_loads_archive("
@@ -191,7 +195,10 @@ public class zDatabaseHandlerBackend {
 		} catch(SQLException e1) {
 			//e1.printStackTrace();
 			show_error("Error creating database tables", e1);
-		}
+		} /*finally{
+			disconnect_db(stmtCreateT);
+			disconnect_host(dbConn);
+		}*/
 	}
 	
 	private static void disconnect_db(Statement create)
@@ -257,7 +264,7 @@ public class zDatabaseHandlerBackend {
 		System.out.println("*****This is what is actually being inserted: ");
 		System.out.println(insertUser);
 		Connection dbConn = connect_db();
-		PreparedStatement pstmt;
+		PreparedStatement pstmt = null;
 		int successful = 0;
 		try {
 			pstmt = dbConn.prepareStatement(insertUser);
@@ -275,6 +282,14 @@ public class zDatabaseHandlerBackend {
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+		} finally{
+			try {
+				pstmt.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			disconnect_host(dbConn);
 		}
 /*		try {
 			Statement insert = dbConn.createStatement();
@@ -335,13 +350,17 @@ public class zDatabaseHandlerBackend {
 				+ fName + "', '" + lName + "', " + eligibility.get("monday") + ", " + eligibility.get("tuesday") + ", " + eligibility.get("wednesday") + ", " + eligibility.get("thursday") + ", " + eligibility.get("friday") + ", " + eligibility.get("saturday") + ", " + eligibility.get("sunday") + ", '" + notes + "')";
 		System.out.println(insertClient);
 		Connection dbConn = connect_db();
+		Statement insert = null;
 		try{
-			Statement insert = dbConn.createStatement();
+			insert = dbConn.createStatement();
 			insert.executeUpdate(insertClient, Statement.RETURN_GENERATED_KEYS);		    
 		} catch (SQLException e) {
 			worked = false;
 			show_error("Insert Error. Please try again. If error continues, contact the developer.", e);
 			e.printStackTrace();
+		} finally{
+			disconnect_db(insert);
+			disconnect_host(dbConn);
 		}
 		return worked;
 	}
@@ -352,13 +371,17 @@ public class zDatabaseHandlerBackend {
 				+ fName + "', '" + lName + "', " + eligibility.get("monday") + ", " + eligibility.get("tuesday") + ", " + eligibility.get("wednesday") + ", " + eligibility.get("thursday") + ", " + eligibility.get("friday") + ", " + eligibility.get("saturday") + ", " + eligibility.get("sunday") + ")";
 		System.out.println(insertClient);
 		Connection dbConn = connect_db();
+		Statement insert = null;
 		try{
-			Statement insert = dbConn.createStatement();
+			insert = dbConn.createStatement();
 			insert.executeUpdate(insertClient, Statement.RETURN_GENERATED_KEYS);		    
 		} catch (SQLException e) {
 			worked = false;
 			show_error("Insert Error. Please try again. If error continues, contact the developer.", e);
 			e.printStackTrace();
+		} finally{
+			disconnect_db(insert);
+			disconnect_host(dbConn);
 		}
 		return worked;
 	}
@@ -373,13 +396,17 @@ public class zDatabaseHandlerBackend {
 			System.out.println("************************");
 			System.out.println(insertLaundryLoad);
 			Connection dbConn = connect_db();
+			Statement insert = null;
 			try {
-				Statement insert = dbConn.createStatement();
+				insert = dbConn.createStatement();
 				insert.executeUpdate(insertLaundryLoad, Statement.RETURN_GENERATED_KEYS);
 			} catch (SQLException e) {
 				worked = false;
 				System.out.println(e);
 				show_error("Insert laundry_load error. Please try again. If error continues, contact the developer.", e);
+			} finally{
+				disconnect_db(insert);
+				disconnect_host(dbConn);
 			}
 		} catch (java.lang.NullPointerException e) {
 			worked = false;
@@ -396,13 +423,17 @@ public class zDatabaseHandlerBackend {
 			String insertLaundryLoad = "INSERT INTO laundry_loads(client_id, drop_off, drop_off_signature) VALUES ('"
 					+ client_id + "', '" + sqlDate + "', '" + drop_off_sig + "')";
 			Connection dbConn = connect_db();
+			Statement insert = null;
 			try {
-				Statement insert = dbConn.createStatement();
+				insert = dbConn.createStatement();
 				insert.executeUpdate(insertLaundryLoad, Statement.RETURN_GENERATED_KEYS);
 			} catch (SQLException e) {
 				worked = false;
 				System.out.println(e);
 				show_error("Insert laundry_load error. Please try again. If error continues, contact the developer.", e);
+			} finally{
+				disconnect_db(insert);
+				disconnect_host(dbConn);
 			}
 		} catch (java.lang.NullPointerException e) {
 			worked = false;
@@ -417,8 +448,9 @@ public class zDatabaseHandlerBackend {
 		boolean worked = true;
 		try {
 			Connection dbConn = connect_db();
+			Statement update = null;
 			try {
-				Statement update = dbConn.createStatement();
+				update = dbConn.createStatement();
 				System.out.println(update);
 				int result = update.executeUpdate(mark_laundry_complete);
 				System.out.println("Result: " + result);
@@ -426,11 +458,14 @@ public class zDatabaseHandlerBackend {
 				worked = false;
 				System.out.println(e);
 				show_error("Update failed.", "Update failed. Please try again.");
+			} finally{
+				disconnect_db(update);
+				disconnect_host(dbConn);
 			}
 		} catch (java.lang.NullPointerException e) {
 			worked = false;
 			debug.show_error("Connection error", "Couldn't connect to the database.");
-		}
+		} 
 		return worked;
 	}
 
@@ -446,6 +481,9 @@ public class zDatabaseHandlerBackend {
 			stDelete.execute(delete);
 		} catch(SQLException e){
 			e.printStackTrace();
+		} finally{
+			disconnect_db(stDelete);
+			disconnect_host(dbConn);
 		}
 
 	}
@@ -484,7 +522,10 @@ public class zDatabaseHandlerBackend {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		} /*finally{
+			disconnect_db(select);
+			disconnect_host(dbConn);
+		}*/
 		return rs;
 		//STEP 5: Extract data from result set
 /*		try {

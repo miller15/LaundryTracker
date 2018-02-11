@@ -156,6 +156,16 @@ public class eViewEditClientWindow extends JFrame{
 
 	}
 
+	public static void update_eligible_today_flag(boolean value, int client_id) {
+		String updateEligibleToday = "UPDATE clients SET eligible_today = " + value + " WHERE id = " + client_id;
+		zDatabaseHandlerBackend.update(updateEligibleToday);
+	}
+
+	public static void update_load_outstanding_flag(boolean value, String client_id) {
+		String updateLoadOutstanding = "UPDATE clients SET load_outstanding = " + value + " WHERE id = " + client_id;
+		zDatabaseHandlerBackend.update(updateLoadOutstanding);
+	}
+	
 	private static void show_error(String title, Object message)
 	{
 		JOptionPane.showConfirmDialog(null, message, title, -1);

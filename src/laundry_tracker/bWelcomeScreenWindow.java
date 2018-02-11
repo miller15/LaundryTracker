@@ -162,6 +162,7 @@ public class bWelcomeScreenWindow {
 					pWordSaltHash = current.getBytes("pWordSaltHash");
 					//pWordSaltHash = current.getBinaryStream	
 					salt = current.getBytes("salt");
+					current.close();
 					System.out.println("Current User: " + currUser);
 					System.out.println("PasswordSalt hash as retrieved from database: " + pWordSaltHash);
 					System.out.println("Salt as retrieved from database: " + salt);

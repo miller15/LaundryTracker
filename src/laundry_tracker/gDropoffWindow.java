@@ -34,7 +34,6 @@ public class gDropoffWindow extends JFrame {
 	private static final long serialVersionUID = 6778610575414893137L;
 
 	private JPanel contentPane;
-	
 	static JFrame frmDropoff;
 	private JTextField txtLname;
 	private JTextField txtFname;
@@ -129,6 +128,7 @@ public class gDropoffWindow extends JFrame {
 				String dayOfWeek;
 				boolean moveon = true;
 				boolean added = false;
+				int client_id = 0;
 				
 				if(fName == null || fName == " " || fName == "") {
 					JOptionPane.showConfirmDialog(frmDropoff, "First name cannot be blank!");
@@ -143,9 +143,8 @@ public class gDropoffWindow extends JFrame {
 					} 
 				} 
 				if (moveon) {
-					String checkClientExists = "SELECT id, notes, monday, tuesday, wednesday, thursday, friday, saturday, sunday, today, outstandingLoads FROM clients WHERE fName = " + "'" + fName + "'" + " AND lName = " + "'" + lName + "'" + ";";
+					String checkClientExists = "SELECT id, notes, monday, tuesday, wednesday, thursday, friday, saturday, sunday, eligible_today, load_outstanding FROM clients WHERE fName = " + "'" + fName + "'" + " AND lName = " + "'" + lName + "'" + ";";
 					ResultSet existence = zDatabaseHandlerBackend.select(checkClientExists);
-					int client_id = 0;
 					String clientNote = null;
 					try {
 						existence.next();
@@ -178,14 +177,14 @@ public class gDropoffWindow extends JFrame {
 							}
 						if (moveon) {
 							try {
-								if (!existence.getBoolean("today")) {
+								if (!existence.getBoolean("eligible_today")) {
 									moveon = false;
 									String[] options =  {"Deny Additional Load","Override and Accept Load"};
 									int choice = JOptionPane.showOptionDialog(null, fName + " " + lName + " has already had laundry done today. You can override this warning and accept his/her laundry.", "Double Dipping!", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
 									if (choice == 0) {
 										moveon = false;
 									}
-								} else if (existence.getBoolean("outstandingLoads")) {
+								} else if (existence.getBoolean("load_outstanding")) {
 									moveon = false;
 									String[] options =  {"Deny Additional Load","Override and Accept Load"};
 									int choice = JOptionPane.showOptionDialog(null, fName + " " + lName + " has laundry that is yet to be complete or that hasn't been picked up yet. You can override this warning and accept his/her laundry, but it is recommended you check the Laundry List and have the client pickup his/her laundry before accepting another load.", "Double Dipping!", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
@@ -198,7 +197,8 @@ public class gDropoffWindow extends JFrame {
 								e.printStackTrace();
 							}
 						} if (moveon) {
-							if(notes != null) {
+							debug.print("NOTES:_" + notes + "_");
+							if(!notes.isEmpty()) {
 								added = zDatabaseHandlerBackend.addLaundryLoad(client_id, dropOffDate, currUser, notes);
 							} else {
 								added = zDatabaseHandlerBackend.addLaundryLoad(client_id, dropOffDate, currUser);
@@ -208,6 +208,8 @@ public class gDropoffWindow extends JFrame {
 				}
 				if (added) {
 					frmDropoff.dispose();
+					eViewEditClientWindow.update_eligible_today_flag(false, client_id);
+					eViewEditClientWindow.update_load_outstanding_flag(true, Integer.toString(client_id)); 
 					debug.show_error("Add Laundry Success", "Laundry Load successfully added!");
 					cMainDashboardWindow.update_table();
 				}
