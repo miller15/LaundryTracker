@@ -13,11 +13,14 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
@@ -44,6 +47,8 @@ import javax.swing.JTable;
 import javax.swing.border.MatteBorder;
 import java.awt.Font;
 import com.toedter.calendar.JDateChooser;
+import javax.swing.JToggleButton;
+import javax.swing.JRadioButton;
 
 
 public class cMainDashboardWindow extends JFrame {
@@ -96,9 +101,9 @@ public class cMainDashboardWindow extends JFrame {
 		
 		tabbedPane.addTab("Laundry List", null, panelLaundryList, null);
 		GridBagLayout gbl_viewLaundryList = new GridBagLayout();
-		gbl_viewLaundryList.columnWidths = new int[]{0, 80, 0, 0};
+		gbl_viewLaundryList.columnWidths = new int[]{0, 0, 80, 0, 0};
 		gbl_viewLaundryList.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_viewLaundryList.columnWeights = new double[]{1.0, 1.0, 1.0, Double.MIN_VALUE};
+		gbl_viewLaundryList.columnWeights = new double[]{1.0, 0.0, 1.0, 1.0, Double.MIN_VALUE};
 		gbl_viewLaundryList.rowWeights = new double[]{0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		panelLaundryList.setLayout(gbl_viewLaundryList);
 		
@@ -109,7 +114,7 @@ public class cMainDashboardWindow extends JFrame {
 			}
 		});
 		GridBagConstraints gbc_btnDropoffNewLoad = new GridBagConstraints();
-		gbc_btnDropoffNewLoad.gridwidth = 2;
+		gbc_btnDropoffNewLoad.gridwidth = 3;
 		gbc_btnDropoffNewLoad.insets = new Insets(0, 0, 5, 5);
 		gbc_btnDropoffNewLoad.gridx = 0;
 		gbc_btnDropoffNewLoad.gridy = 0;
@@ -119,7 +124,7 @@ public class cMainDashboardWindow extends JFrame {
 		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
 		gbc_scrollPane.gridheight = 16;
 		gbc_scrollPane.fill = GridBagConstraints.BOTH;
-		gbc_scrollPane.gridx = 2;
+		gbc_scrollPane.gridx = 3;
 		gbc_scrollPane.gridy = 0;
 		panelLaundryList.add(scrollPane, gbc_scrollPane);
 		
@@ -152,7 +157,7 @@ public class cMainDashboardWindow extends JFrame {
 */		
 		JButton btnMarkLoadComplete = new JButton("Mark Load Complete");
 		GridBagConstraints gbc_btnMarkLoadComplete = new GridBagConstraints();
-		gbc_btnMarkLoadComplete.gridwidth = 2;
+		gbc_btnMarkLoadComplete.gridwidth = 3;
 		gbc_btnMarkLoadComplete.insets = new Insets(0, 0, 5, 5);
 		gbc_btnMarkLoadComplete.gridx = 0;
 		gbc_btnMarkLoadComplete.gridy = 1;
@@ -176,7 +181,7 @@ public class cMainDashboardWindow extends JFrame {
 		
 		JButton btnMarkPickedUp = new JButton("Mark Picked Up");
 		GridBagConstraints gbc_btnMarkPickedUp = new GridBagConstraints();
-		gbc_btnMarkPickedUp.gridwidth = 2;
+		gbc_btnMarkPickedUp.gridwidth = 3;
 		gbc_btnMarkPickedUp.insets = new Insets(0, 0, 5, 5);
 		gbc_btnMarkPickedUp.gridx = 0;
 		gbc_btnMarkPickedUp.gridy = 2;
@@ -201,7 +206,7 @@ public class cMainDashboardWindow extends JFrame {
 		JLabel lblFilters = new JLabel("Filters");
 		lblFilters.setFont(new Font("Tahoma", Font.BOLD, 11));
 		GridBagConstraints gbc_lblFilters = new GridBagConstraints();
-		gbc_lblFilters.gridwidth = 2;
+		gbc_lblFilters.gridwidth = 3;
 		gbc_lblFilters.insets = new Insets(0, 0, 5, 5);
 		gbc_lblFilters.gridx = 0;
 		gbc_lblFilters.gridy = 5;
@@ -209,59 +214,123 @@ public class cMainDashboardWindow extends JFrame {
 		
 		JLabel lblEarliestDate = new JLabel("Earliest Date");
 		GridBagConstraints gbc_lblEarliestDate = new GridBagConstraints();
+		gbc_lblEarliestDate.gridwidth = 2;
 		gbc_lblEarliestDate.anchor = GridBagConstraints.EAST;
 		gbc_lblEarliestDate.insets = new Insets(0, 0, 5, 5);
 		gbc_lblEarliestDate.gridx = 0;
 		gbc_lblEarliestDate.gridy = 6;
 		panelLaundryList.add(lblEarliestDate, gbc_lblEarliestDate);
 		
-		JDateChooser dateChooser = new JDateChooser();
-		GridBagConstraints gbc_dateChooser = new GridBagConstraints();
-		gbc_dateChooser.insets = new Insets(0, 0, 5, 5);
-		gbc_dateChooser.fill = GridBagConstraints.BOTH;
-		gbc_dateChooser.gridx = 1;
-		gbc_dateChooser.gridy = 6;
-		panelLaundryList.add(dateChooser, gbc_dateChooser);
+		JDateChooser dateChooserEarliest = new JDateChooser();
+		GridBagConstraints gbc_dateChooserEarliest = new GridBagConstraints();
+		gbc_dateChooserEarliest.insets = new Insets(0, 0, 5, 5);
+		gbc_dateChooserEarliest.fill = GridBagConstraints.BOTH;
+		gbc_dateChooserEarliest.gridx = 2;
+		gbc_dateChooserEarliest.gridy = 6;
+		panelLaundryList.add(dateChooserEarliest, gbc_dateChooserEarliest);
 				
 		JLabel lblLatestDate = new JLabel("Latest Date");
 		GridBagConstraints gbc_lblLatestDate = new GridBagConstraints();
+		gbc_lblLatestDate.gridwidth = 2;
 		gbc_lblLatestDate.anchor = GridBagConstraints.EAST;
 		gbc_lblLatestDate.insets = new Insets(0, 0, 5, 5);
 		gbc_lblLatestDate.gridx = 0;
 		gbc_lblLatestDate.gridy = 7;
 		panelLaundryList.add(lblLatestDate, gbc_lblLatestDate);
 		
-		JDateChooser dateChooser_1 = new JDateChooser();
-		GridBagConstraints gbc_dateChooser_1 = new GridBagConstraints();
-		gbc_dateChooser_1.insets = new Insets(0, 0, 5, 5);
-		gbc_dateChooser_1.fill = GridBagConstraints.BOTH;
-		gbc_dateChooser_1.gridx = 1;
-		gbc_dateChooser_1.gridy = 7;
-		panelLaundryList.add(dateChooser_1, gbc_dateChooser_1);
+		JDateChooser dateChooserLatest = new JDateChooser();
+		GridBagConstraints gbc_dateChooserLatest = new GridBagConstraints();
+		gbc_dateChooserLatest.insets = new Insets(0, 0, 5, 5);
+		gbc_dateChooserLatest.fill = GridBagConstraints.BOTH;
+		gbc_dateChooserLatest.gridx = 2;
+		gbc_dateChooserLatest.gridy = 7;
+		panelLaundryList.add(dateChooserLatest, gbc_dateChooserLatest);
 		
-		JCheckBox chckbxComplete = new JCheckBox("Completed");
-		GridBagConstraints gbc_chckbxComplete = new GridBagConstraints();
-		gbc_chckbxComplete.gridwidth = 2;
-		gbc_chckbxComplete.insets = new Insets(0, 0, 5, 5);
-		gbc_chckbxComplete.gridx = 0;
-		gbc_chckbxComplete.gridy = 8;
-		panelLaundryList.add(chckbxComplete, gbc_chckbxComplete);
+		//Radio Buttons for the filters!
+		JLabel lblRequireCompleted = new JLabel("Require Completed");
+		GridBagConstraints gbc_lblRequireCompleted = new GridBagConstraints();
+		gbc_lblRequireCompleted.insets = new Insets(0, 0, 5, 5);
+		gbc_lblRequireCompleted.gridx = 0;
+		gbc_lblRequireCompleted.gridy = 8;
+		panelLaundryList.add(lblRequireCompleted, gbc_lblRequireCompleted);
 		
-		JCheckBox chckbxPickedUp = new JCheckBox("Picked Up");
-		GridBagConstraints gbc_chckbxPickedUp = new GridBagConstraints();
-		gbc_chckbxPickedUp.gridwidth = 2;
-		gbc_chckbxPickedUp.insets = new Insets(0, 0, 5, 5);
-		gbc_chckbxPickedUp.gridx = 0;
-		gbc_chckbxPickedUp.gridy = 9;
-		panelLaundryList.add(chckbxPickedUp, gbc_chckbxPickedUp);
+		JRadioButton rdbtnCompletedYes = new JRadioButton("Yes");
+		rdbtnCompletedYes.setActionCommand("completedYes");
+		GridBagConstraints gbc_rdbtnCompletedYes = new GridBagConstraints();
+		gbc_rdbtnCompletedYes.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnCompletedYes.gridx = 1;
+		gbc_rdbtnCompletedYes.gridy = 8;
+		panelLaundryList.add(rdbtnCompletedYes, gbc_rdbtnCompletedYes);
 		
-		JCheckBox chckbxEligibleNow = new JCheckBox("Eligible Now");
-		GridBagConstraints gbc_chckbxEligibleNow = new GridBagConstraints();
-		gbc_chckbxEligibleNow.gridwidth = 2;
-		gbc_chckbxEligibleNow.insets = new Insets(0, 0, 5, 5);
-		gbc_chckbxEligibleNow.gridx = 0;
-		gbc_chckbxEligibleNow.gridy = 10;
-		panelLaundryList.add(chckbxEligibleNow, gbc_chckbxEligibleNow);
+		JRadioButton rdbtnCompletedNo = new JRadioButton("No");
+		rdbtnCompletedNo.setActionCommand("completedNo");
+		GridBagConstraints gbc_rdbtnCompletedNo = new GridBagConstraints();
+		gbc_rdbtnCompletedNo.anchor = GridBagConstraints.WEST;
+		gbc_rdbtnCompletedNo.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnCompletedNo.gridx = 2;
+		gbc_rdbtnCompletedNo.gridy = 8;
+		panelLaundryList.add(rdbtnCompletedNo, gbc_rdbtnCompletedNo);
+		
+		JLabel lblRequirePickedUp = new JLabel("Require Picked Up");
+		GridBagConstraints gbc_lblRequirePickedUp = new GridBagConstraints();
+		gbc_lblRequirePickedUp.insets = new Insets(0, 0, 5, 5);
+		gbc_lblRequirePickedUp.gridx = 0;
+		gbc_lblRequirePickedUp.gridy = 9;
+		panelLaundryList.add(lblRequirePickedUp, gbc_lblRequirePickedUp);
+		
+		JRadioButton rdbtnPickedupYes = new JRadioButton("Yes");
+		rdbtnPickedupYes.setActionCommand("pickedUpYes");
+		GridBagConstraints gbc_rdbtnRdbtnpickedupYes = new GridBagConstraints();
+		gbc_rdbtnRdbtnpickedupYes.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnRdbtnpickedupYes.gridx = 1;
+		gbc_rdbtnRdbtnpickedupYes.gridy = 9;
+		panelLaundryList.add(rdbtnPickedupYes, gbc_rdbtnRdbtnpickedupYes);
+		
+		JRadioButton rdbtnPickedupNo = new JRadioButton("No");
+		rdbtnPickedupNo.setActionCommand("pickedUpNo");
+		GridBagConstraints gbc_rdbtnpickedupNo = new GridBagConstraints();
+		gbc_rdbtnpickedupNo.anchor = GridBagConstraints.WEST;
+		gbc_rdbtnpickedupNo.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnpickedupNo.gridx = 2;
+		gbc_rdbtnpickedupNo.gridy = 9;
+		panelLaundryList.add(rdbtnPickedupNo, gbc_rdbtnpickedupNo);
+		
+		JLabel lblCurrentlyEligible = new JLabel("Currently Eligible?");
+		GridBagConstraints gbc_lblCurrentlyEligible = new GridBagConstraints();
+		gbc_lblCurrentlyEligible.insets = new Insets(0, 0, 5, 5);
+		gbc_lblCurrentlyEligible.gridx = 0;
+		gbc_lblCurrentlyEligible.gridy = 10;
+		panelLaundryList.add(lblCurrentlyEligible, gbc_lblCurrentlyEligible);
+		
+		JRadioButton rdbtnEligibleYes = new JRadioButton("Yes");
+		rdbtnEligibleYes.setActionCommand("eligibleYes");
+		GridBagConstraints gbc_rdbtnEligibleYes = new GridBagConstraints();
+		gbc_rdbtnEligibleYes.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnEligibleYes.gridx = 1;
+		gbc_rdbtnEligibleYes.gridy = 10;
+		panelLaundryList.add(rdbtnEligibleYes, gbc_rdbtnEligibleYes);
+		
+		JRadioButton rdbtnEligibleNo = new JRadioButton("No");
+		rdbtnEligibleNo.setActionCommand("eligibleNo");
+		GridBagConstraints gbc_rdbtnEligibleNo = new GridBagConstraints();
+		gbc_rdbtnEligibleNo.anchor = GridBagConstraints.WEST;
+		gbc_rdbtnEligibleNo.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnEligibleNo.gridx = 2;
+		gbc_rdbtnEligibleNo.gridy = 10;
+		panelLaundryList.add(rdbtnEligibleNo, gbc_rdbtnEligibleNo);
+		
+	    //Group the radio buttons.
+	    ButtonGroup btngrpCompleted = new ButtonGroup();
+	    btngrpCompleted.add(rdbtnCompletedYes);
+	    btngrpCompleted.add(rdbtnCompletedNo);
+	    
+	    ButtonGroup btngrpPickedup = new ButtonGroup();
+	    btngrpPickedup.add(rdbtnCompletedYes);
+	    btngrpPickedup.add(rdbtnCompletedNo);
+
+	    ButtonGroup btngrpEligible = new ButtonGroup();
+	    btngrpEligible.add(rdbtnEligibleYes);
+	    btngrpEligible.add(rdbtnEligibleNo);
 		
 		JLabel lblFirstNameFilter = new JLabel("First Name");
 		GridBagConstraints gbc_lblFirstNameFilter = new GridBagConstraints();
@@ -275,7 +344,7 @@ public class cMainDashboardWindow extends JFrame {
 		GridBagConstraints gbc_textFieldFName = new GridBagConstraints();
 		gbc_textFieldFName.insets = new Insets(0, 0, 5, 5);
 		gbc_textFieldFName.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textFieldFName.gridx = 1;
+		gbc_textFieldFName.gridx = 2;
 		gbc_textFieldFName.gridy = 11;
 		panelLaundryList.add(textFieldFName, gbc_textFieldFName);
 		textFieldFName.setColumns(10);
@@ -292,14 +361,42 @@ public class cMainDashboardWindow extends JFrame {
 		GridBagConstraints gbc_textFieldLName = new GridBagConstraints();
 		gbc_textFieldLName.insets = new Insets(0, 0, 5, 5);
 		gbc_textFieldLName.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textFieldLName.gridx = 1;
+		gbc_textFieldLName.gridx = 2;
 		gbc_textFieldLName.gridy = 12;
 		panelLaundryList.add(textFieldLName, gbc_textFieldLName);
 		textFieldLName.setColumns(10);
 		
 		JButton btnApplyFilters = new JButton("Apply Filters");
+		btnApplyFilters.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String earliest_date = "";
+				String latest_date = "";
+				String completed = "";
+				String pickedup = "";
+				String eligible = "";
+				String fName = "";
+				String lName = "";
+				
+				if (btngrpCompleted.getSelection().isSelected()) {
+					completed = btngrpCompleted.getSelection().getActionCommand();
+				}
+				if (btngrpPickedup.getSelection().isSelected()) {
+					pickedup = btngrpPickedup.getSelection().getActionCommand();
+				}
+				if (btngrpEligible.getSelection().isSelected()) {
+					eligible = btngrpEligible.getSelection().getActionCommand();
+				}				
+				
+				String[] filters = {earliest_date, latest_date, completed, pickedup, eligible, fName, lName};
+				if(earliest_date.isEmpty() && latest_date.isEmpty() && ) {
+					debug.print("Nothing was filled");
+				} else {
+					create_laundry_table(scrollPane, generate_filter_query(filters));
+				}
+			}
+		});
 		GridBagConstraints gbc_btnApplyFilters = new GridBagConstraints();
-		gbc_btnApplyFilters.gridwidth = 2;
+		gbc_btnApplyFilters.gridwidth = 3;
 		gbc_btnApplyFilters.insets = new Insets(0, 0, 5, 5);
 		gbc_btnApplyFilters.gridx = 0;
 		gbc_btnApplyFilters.gridy = 13;
@@ -307,11 +404,38 @@ public class cMainDashboardWindow extends JFrame {
 		
 		JButton btnGenerateReport = new JButton("Generate Report");
 		GridBagConstraints gbc_btnGenerateReport = new GridBagConstraints();
-		gbc_btnGenerateReport.gridwidth = 2;
+		gbc_btnGenerateReport.gridwidth = 3;
 		gbc_btnGenerateReport.insets = new Insets(0, 0, 5, 5);
 		gbc_btnGenerateReport.gridx = 0;
 		gbc_btnGenerateReport.gridy = 14;
 		panelLaundryList.add(btnGenerateReport, gbc_btnGenerateReport);
+		
+		JButton btnClearFilters = new JButton("Clear Filters");
+		btnClearFilters.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				create_laundry_table(scrollPane);
+				reset_filters();
+			}
+
+			private void reset_filters() {
+				dateChooserEarliest.setDate(null);
+				dateChooserLatest.setDate(null);
+				txtFname.setText("");
+				txtLname.setText("");
+				rdbtnCompletedYes.setSelected(false);
+				rdbtnCompletedNo.setSelected(false);
+				rdbtnPickedupYes.setSelected(false);
+				rdbtnPickedupNo.setSelected(false);
+				rdbtnEligibleYes.setSelected(false);
+				rdbtnEligibleNo.setSelected(false);				
+			}
+		});
+		GridBagConstraints gbc_btnClearFilters = new GridBagConstraints();
+		gbc_btnClearFilters.gridwidth = 3;
+		gbc_btnClearFilters.insets = new Insets(0, 0, 0, 5);
+		gbc_btnClearFilters.gridx = 0;
+		gbc_btnClearFilters.gridy = 15;
+		panelLaundryList.add(btnClearFilters, gbc_btnClearFilters);
 		
 		
 		tabbedPane.add("Add Client", panelAddClient);
@@ -623,6 +747,29 @@ public class cMainDashboardWindow extends JFrame {
 		getContentPane().setLayout(groupLayout);
 	}
 		
+protected String generate_filter_query(String[] filters) {
+	List full_filters = new ArrayList();
+	String laundry_query = 
+		  "SELECT laundry_loads.id, "
+		+ "CONCAT(fName, ' ', lName) AS Name, "
+		+ "CONCAT(drop_off) AS 'Dropped Off On', "
+		+ "CONCAT(load_complete) AS 'Completed On', "
+		+ "CONCAT(pick_up) AS 'Picked Up On', "
+		+ "CONCAT(laundry_loads.notes) AS 'Note', "
+		+ "CONCAT(clients.id) AS 'Client ID' "
+		+ "FROM laundry_loads ll "
+		+ "JOIN clients c "
+		+ "ON ll.client_id = c.id WHERE ";
+
+	for (int i=0; i<filters.length; i++) {
+		if (!filters[i].isEmpty()) {
+			full_filters.add(filters[i]);
+		}
+	}
+	
+		return null;
+	}
+
 protected void edit_laundry(String editType, int laundry_id, String client_id, String current_user) {
 	boolean proceed = true;
 	String[] options = {"Add This Note", "No Note"};
@@ -663,9 +810,9 @@ protected void edit_laundry(String editType, int laundry_id, String client_id, S
 		
 }
 
-private static void create_laundry_table(JScrollPane scrollPane) {
+private static void create_laundry_table(JScrollPane scrollPane, String laundry_query) {
 	try {
-		laundryTable = new JTable(buildTableModel());
+		laundryTable = new JTable(buildTableModel(laundry_query));
 	} catch (SQLException e) {
 		e.printStackTrace();
 	}
@@ -704,21 +851,24 @@ private static void create_laundry_table(JScrollPane scrollPane) {
 	});
 
 	scrollPane.setViewportView(laundryTable);
-
 }
 
-private static DefaultTableModel buildTableModel() throws SQLException {	
-	String laundry_query = "SELECT laundry_loads.id, CONCAT(fName, ' ', lName) AS Name, CONCAT(drop_off) AS 'Dropped Off On', CONCAT(load_complete) AS 'Completed On', CONCAT(pick_up) AS 'Picked Up On', CONCAT(laundry_loads.notes) AS 'Note', CONCAT(clients.id) AS 'Client ID' FROM laundry_loads JOIN clients ON laundry_loads.client_id = clients.id";
+private static void create_laundry_table(JScrollPane scrollPane) {
+	String default_laundry_query = "SELECT laundry_loads.id, CONCAT(fName, ' ', lName) AS Name, CONCAT(drop_off) AS 'Dropped Off On', CONCAT(load_complete) AS 'Completed On', CONCAT(pick_up) AS 'Picked Up On', CONCAT(laundry_loads.notes) AS 'Note', CONCAT(clients.id) AS 'Client ID' FROM laundry_loads JOIN clients ON laundry_loads.client_id = clients.id";
+	create_laundry_table(scrollPane, default_laundry_query);
+}
+
+private static DefaultTableModel buildTableModel(String laundry_query) throws SQLException {
 	ResultSet rs = zDatabaseHandlerBackend.select(laundry_query);
 	ResultSetMetaData metaData = rs.getMetaData();
-	
+
 	//names of columns:
 	Vector<String> columnNames = new Vector<String>();
 	int colCount = metaData.getColumnCount();
 	for (int column = 1; column <= colCount; column++) {
 		columnNames.add(metaData.getColumnName(column));
 	}
-	
+
 	//data of the table
 	Vector<Vector<Object>> data = new Vector<Vector<Object>>();
 	while (rs.next()) {
@@ -745,7 +895,12 @@ private static DefaultTableModel buildTableModel() throws SQLException {
 		    }
 		};
 }
-	
+
+/*private static DefaultTableModel buildTableModel() throws SQLException {
+	String default_laundry_query = "SELECT laundry_loads.id, CONCAT(fName, ' ', lName) AS Name, CONCAT(drop_off) AS 'Dropped Off On', CONCAT(load_complete) AS 'Completed On', CONCAT(pick_up) AS 'Picked Up On', CONCAT(laundry_loads.notes) AS 'Note', CONCAT(clients.id) AS 'Client ID' FROM laundry_loads JOIN clients ON laundry_loads.client_id = clients.id";
+	return buildTableModel(default_laundry_query);
+}
+*/	
 public static void update_table(){
 	create_laundry_table(scrollPane);
 }

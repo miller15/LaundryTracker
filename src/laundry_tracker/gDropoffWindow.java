@@ -183,6 +183,8 @@ public class gDropoffWindow extends JFrame {
 									int choice = JOptionPane.showOptionDialog(null, fName + " " + lName + " has already had laundry done today. You can override this warning and accept his/her laundry.", "Double Dipping!", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
 									if (choice == 0) {
 										moveon = false;
+									} else {
+										moveon = true;
 									}
 								} else if (existence.getBoolean("load_outstanding")) {
 									moveon = false;
@@ -190,13 +192,16 @@ public class gDropoffWindow extends JFrame {
 									int choice = JOptionPane.showOptionDialog(null, fName + " " + lName + " has laundry that is yet to be complete or that hasn't been picked up yet. You can override this warning and accept his/her laundry, but it is recommended you check the Laundry List and have the client pickup his/her laundry before accepting another load.", "Double Dipping!", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
 									if (choice == 0) {
 										moveon = false;
+									} else {
+										moveon = true;
 									}
 								}
 							} catch (HeadlessException | SQLException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
-						} if (moveon) {
+						} 
+						if (moveon) {
 							debug.print("NOTES:_" + notes + "_");
 							if(!notes.isEmpty()) {
 								added = zDatabaseHandlerBackend.addLaundryLoad(client_id, dropOffDate, currUser, notes);
