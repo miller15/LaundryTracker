@@ -817,19 +817,6 @@ public class cMainDashboardWindow extends JFrame {
 			}
 		});
 		
-		JButton btnUpdate = new JButton("Update");
-		btnUpdate.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				System.out.println("TO_DO: UPDATE clients set ... WHERE fName = AND lName = ...");
-			}
-		});
-		GridBagConstraints gbc_btnUpdate = new GridBagConstraints();
-		gbc_btnUpdate.anchor = GridBagConstraints.WEST;
-		gbc_btnUpdate.insets = new Insets(0, 0, 0, 5);
-		gbc_btnUpdate.gridx = 0;
-		gbc_btnUpdate.gridy = 13;
-		panelAddClient.add(btnUpdate, gbc_btnUpdate);
-		
 		panelAddClient.add(btnAdd, gbc_btnAdd);
 		
 /*		JButton btnSend = new JButton("Send");
