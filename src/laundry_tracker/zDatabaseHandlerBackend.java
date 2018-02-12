@@ -9,8 +9,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Date;
-import java.util.Dictionary;
 import java.util.Map;
 
 import javax.swing.JOptionPane;
@@ -103,7 +101,7 @@ public class zDatabaseHandlerBackend {
 
 			String createUsers = "CREATE TABLE IF NOT EXISTS users("
 					+ "userName VARCHAR(25) PRIMARY KEY, "
-					+ "pWordSaltHash VARBINARY(50) NOT NULL COMMENT 'This is the hash of the password combined with the salt.', "
+					+ "pWordSaltHash VARCHAR(50) NOT NULL COMMENT 'This is the hash of the password combined with the salt.', "
 					+ "email varChar(50) NOT NULL, "
 					+ "fName varChar(20) NOT NULL, "
 					+ "lName varChar(25) NOT NULL,"
@@ -168,7 +166,7 @@ public class zDatabaseHandlerBackend {
 					+ "notes BLOB, "
 					+ "FOREIGN KEY(client_id) REFERENCES clients_archive(id) ON DELETE CASCADE ON UPDATE CASCADE)";
 			
-			stmtCreateT.executeUpdate("DROP TABLE IF EXISTS users");
+/*			stmtCreateT.executeUpdate("DROP TABLE IF EXISTS users");
 			System.out.println("Successfully dropped the users table.");
 			stmtCreateT.executeUpdate("DROP TABLE IF EXISTS laundry_loads");
 			System.out.println("Successfully dropped the laundry_loads table.");
@@ -178,7 +176,7 @@ public class zDatabaseHandlerBackend {
 			System.out.println("Successfully dropped the laundry_loads_archive table.");
 			stmtCreateT.executeUpdate("DROP TABLE IF EXISTS clients_archive");
 			System.out.println("Successfully dropped the clients_archive table.");
-			stmtCreateT.executeUpdate(createUsers);
+*/			stmtCreateT.executeUpdate(createUsers);
 			System.out.println("Successfully created the users table.");
 			stmtCreateT.executeUpdate(createClients);
 			System.out.println("Successfully created the clients table.");
@@ -188,10 +186,10 @@ public class zDatabaseHandlerBackend {
 			System.out.println("Successfully created the clients archive table.");
 			stmtCreateT.executeUpdate(createLaundryLoadsArchive);
 			System.out.println("Successfully created the laundry loads archive table.");
-			stmtCreateT.execute(insertClients);
+/*			stmtCreateT.execute(insertClients);
 			stmtCreateT.execute(insertUsers);
 			stmtCreateT.execute(insertLaundryLoads);
-			
+*/			
 		} catch(SQLException e1) {
 			//e1.printStackTrace();
 			show_error("Error creating database tables", e1);
