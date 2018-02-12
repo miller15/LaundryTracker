@@ -2,9 +2,18 @@ package laundry_tracker;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -13,7 +22,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.SpringLayout;
+
+import com.toedter.calendar.JDateChooser;
 
 public class debug {
 	public static void print(String printStr) {
@@ -55,6 +67,9 @@ public class debug {
 		return selection;
 	}
 	
+	/**
+	 * @wbp.parser.entryPoint
+	 */
 	public static void show_note_prompt(String table, String id, String title, String message, String[] options, boolean edit_existing) {
 		//This can be used for client notes and laundry notes.
 		//It can also be used for adding a note and editing a note.
@@ -75,8 +90,10 @@ public class debug {
         	String retrieve_note = "SELECT notes FROM " + table + " WHERE id = " + id;
     		ResultSet note_result = zDatabaseHandlerBackend.select(retrieve_note);
     		try {
+    			System.out.println("GETTING CURRENT NOTES: ");
     			note_result.next();
     			String current_note = note_result.getString("notes");
+    			print(current_note);
     			txtNote.setText(current_note);
     		} catch (SQLException e) {
     			debug.show_error("Error retrieving laundry_load", "Could not retrieve laundry_load notes data.");
@@ -85,8 +102,8 @@ public class debug {
 
         }
         JScrollPane scrollPane = new JScrollPane(txtNote,
-        JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
-        JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        		JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
+        		JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.setPreferredSize(new Dimension(300, 125));
         panel.add(scrollPane);
 
@@ -123,6 +140,69 @@ public class debug {
          } 
 
 	}
+	
+	public static List show_confirm_dialog(String editType) {
+		List date_bool = new ArrayList();
+		boolean quit = true;
+		String chosenDate = null;
+		String title = "Confirm date for " + editType;
+		JFrame confirmFrame = new JFrame();
+		final SpringLayout layout = new SpringLayout();
+		final JPanel panel = new JPanel(layout);
+		panel.setPreferredSize(new Dimension(350, 160));
+		
+		String messageType = "";
+		if (editType == "markComplete") {
+			messageType = "laundry completion.";
+		} else if (editType == "pickup") {
+			messageType = "pick-up.";
+		}
+		JLabel lblInstruction = new JLabel("You may edit the date and time of the " + messageType);
+		panel.add(lblInstruction);
+		
+		JTextField dateChooser = new JTextField();
+		dateChooser.setToolTipText("yyyy-MM-dd HH:mm:ss");
+/*		JDateChooser dateChooser = new JDateChooser();
+*/
+		//Current Date and Time
+		DateFormat dateFormatString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		
+		Date date = new Date();
+		LocalDateTime datetime = LocalDateTime.parse(dateFormatString.format(date), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+		dateChooser.setText(dateFormatString.format(date));
+		
+		panel.add(dateChooser);
+		
+        layout.putConstraint(SpringLayout.WEST, lblInstruction,
+                0,
+                SpringLayout.WEST, panel);
+        layout.putConstraint(SpringLayout.NORTH, dateChooser,
+                10,
+                SpringLayout.SOUTH, lblInstruction);
+        String[] options = {"Continue", "Cancel"};
+        int selection = JOptionPane.showOptionDialog(confirmFrame,
+                panel,
+                title,
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                options,
+                "Continue");
+        if (selection == 0) {
+        	//Continue
+        	quit = false;
+        	chosenDate = dateChooser.getText();
+            //chosenDate = dateFormatString.format(dateChooser.getDate());
+            date_bool.add(chosenDate);
+            date_bool.add(quit);
+        } else {
+        	date_bool.add(chosenDate);
+        	date_bool.add(quit);
+        	confirmFrame.dispose();
+        }
+		return date_bool;
+	}
+
 
 	
 	/*	Future forgot password skeleton. - email code from old project

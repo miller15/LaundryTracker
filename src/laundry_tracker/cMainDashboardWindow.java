@@ -71,6 +71,8 @@ public class cMainDashboardWindow extends JFrame {
 	private JTextField txtFnameFilter;
 	private JTextField txtLnameFilter;
 	private static JScrollPane scrollPane;
+	private static JTabbedPane tabbedPane;
+	private static JPanel panelAddClient;
 
 	/**
 	 * Create the frame.
@@ -93,11 +95,11 @@ public class cMainDashboardWindow extends JFrame {
 	public cMainDashboardWindow() throws ParseException {
 		setTitle("Manage Laundry");
 		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 783, 535);
-		JPanel panelAddClient = new JPanel();
+		setBounds(100, 100, 1015, 702);
+		panelAddClient = new JPanel();
 		panelAddClient.setBorder(new TitledBorder(new EtchedBorder(), "Fill out the fields to enter a new client into the database. (* indicates required field)"));
 		
-		JTabbedPane tabbedPane = new JTabbedPane();
+		tabbedPane = new JTabbedPane();
 		tabbedPane.setBorder(new CompoundBorder(new LineBorder(new Color(128, 0, 0), 2, true), new LineBorder(new Color(218, 165, 32))));
 		
 		//tableContentPane = new dViewAllClientsWindow();
@@ -107,9 +109,9 @@ public class cMainDashboardWindow extends JFrame {
 		tabbedPane.addTab("Laundry List", null, panelLaundryList, null);
 		GridBagLayout gbl_viewLaundryList = new GridBagLayout();
 		gbl_viewLaundryList.columnWidths = new int[]{0, 0, 80, 0, 0};
-		gbl_viewLaundryList.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_viewLaundryList.columnWeights = new double[]{1.0, 0.0, 1.0, 1.0, Double.MIN_VALUE};
-		gbl_viewLaundryList.rowWeights = new double[]{0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_viewLaundryList.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_viewLaundryList.columnWeights = new double[]{0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_viewLaundryList.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE};
 		panelLaundryList.setLayout(gbl_viewLaundryList);
 		
 		JButton btnDropoffNewLoad = new JButton("Drop off New Load");
@@ -127,7 +129,8 @@ public class cMainDashboardWindow extends JFrame {
 		
 		scrollPane = new JScrollPane();
 		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
-		gbc_scrollPane.gridheight = 16;
+		gbc_scrollPane.insets = new Insets(0, 0, 5, 0);
+		gbc_scrollPane.gridheight = 23;
 		gbc_scrollPane.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane.gridx = 3;
 		gbc_scrollPane.gridy = 0;
@@ -206,6 +209,27 @@ public class cMainDashboardWindow extends JFrame {
 				}
 			}
 		});
+		
+		JButton btnClearMarkedComplete = new JButton("Clear Marked Complete");
+		btnClearMarkedComplete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int laundry_id = (int) laundryTable.getValueAt(laundryTable.getSelectedRow(), 0);
+				String client_id = (String) laundryTable.getValueAt(laundryTable.getSelectedRow(), 6);
+				clear_laundry("markedComplete", laundry_id, client_id, bWelcomeScreenWindow.getCurrUser());
+			}
+		});
+		GridBagConstraints gbc_btnClearMarkedComplete = new GridBagConstraints();
+		gbc_btnClearMarkedComplete.insets = new Insets(0, 0, 5, 5);
+		gbc_btnClearMarkedComplete.gridx = 1;
+		gbc_btnClearMarkedComplete.gridy = 3;
+		panelLaundryList.add(btnClearMarkedComplete, gbc_btnClearMarkedComplete);
+		
+		JButton btnClearPickup = new JButton("Clear Pickup");
+		GridBagConstraints gbc_btnClearPickup = new GridBagConstraints();
+		gbc_btnClearPickup.insets = new Insets(0, 0, 5, 5);
+		gbc_btnClearPickup.gridx = 1;
+		gbc_btnClearPickup.gridy = 4;
+		panelLaundryList.add(btnClearPickup, gbc_btnClearPickup);
 
 		
 		JLabel lblFilters = new JLabel("Filters");
@@ -518,10 +542,24 @@ public class cMainDashboardWindow extends JFrame {
 		});
 		GridBagConstraints gbc_btnClearFilters = new GridBagConstraints();
 		gbc_btnClearFilters.gridwidth = 3;
-		gbc_btnClearFilters.insets = new Insets(0, 0, 0, 5);
+		gbc_btnClearFilters.insets = new Insets(0, 0, 5, 5);
 		gbc_btnClearFilters.gridx = 0;
 		gbc_btnClearFilters.gridy = 15;
 		panelLaundryList.add(btnClearFilters, gbc_btnClearFilters);
+		
+		JButton btnDeleteLaundryEntry = new JButton("Delete Laundry Entry");
+		btnDeleteLaundryEntry.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int laundry_id = (int) laundryTable.getValueAt(laundryTable.getSelectedRow(), 0);
+				String client_id = (String) laundryTable.getValueAt(laundryTable.getSelectedRow(), 6);
+				delete_laundry(laundry_id, client_id);
+			}
+		});
+		GridBagConstraints gbc_btnDeleteLaundryEntry = new GridBagConstraints();
+		gbc_btnDeleteLaundryEntry.insets = new Insets(0, 0, 0, 5);
+		gbc_btnDeleteLaundryEntry.gridx = 1;
+		gbc_btnDeleteLaundryEntry.gridy = 22;
+		panelLaundryList.add(btnDeleteLaundryEntry, gbc_btnDeleteLaundryEntry);
 		
 		
 		tabbedPane.add("Add Client", panelAddClient);
@@ -867,43 +905,85 @@ protected String generate_filter_query(String[] filters) {
 
 protected void edit_laundry(String editType, int laundry_id, String client_id, String current_user) {
 	boolean proceed = true;
+	List date_bool;
 	String[] options = {"Add This Note", "No Note"};
-	debug.show_note_prompt("laundry_loads", String.valueOf(laundry_id), "Laundry Note", "Would you like to add a note to this laundry entry?", options, false);
-	debug.show_note_prompt("clients", client_id, "Client Note", "Would you like to add a note to this client's profile?", options, false); 
-	if(editType == "pickup") {
-		System.out.println("pickingup");
-		//Check to make sure the laundry is marked as complete.
-		String check_complete = "SELECT load_complete FROM laundry_loads WHERE id = " + laundry_id;
-		ResultSet complete_check = zDatabaseHandlerBackend.select(check_complete);
-		try {
-			complete_check.next();
-			if(complete_check.getDate("load_complete") == null) {
-				int choice = debug.show_warning("Laundry not completed.", "The laundry is not marked as complete. Would you like to mark it complete first?");
-				if(choice == 0) {
-					edit_laundry("markComplete", laundry_id, client_id, current_user);
-				} else if(choice == 2) {
-					proceed = false;
-				}
-			} 
-			complete_check.close();
-		} catch (SQLException e) {
-			debug.show_error("Error retrieving laundry_load", "Could not retrieve laundry_load data.");
-			e.printStackTrace();
-		}
-		if (proceed) {
-			String mark_laundry_picked_up = "UPDATE laundry_loads SET pick_up = CURRENT_TIMESTAMP, pick_up_sig = '" + bWelcomeScreenWindow.getCurrUser() + "' WHERE id = " + laundry_id;
-			zDatabaseHandlerBackend.updateEntry(mark_laundry_picked_up);
-			eViewEditClientWindow.update_load_outstanding_flag(false, client_id);
-		} else {
-			debug.show_error("Action Canceled", "No edit will be made to the laundry load.");
-		}
-	} else if(editType == "markComplete") {
-		String mark_laundry_complete = "UPDATE laundry_loads SET load_complete = CURRENT_TIMESTAMP, load_complete_sig = '" + bWelcomeScreenWindow.getCurrUser() + "' WHERE id = " + laundry_id;
-		zDatabaseHandlerBackend.updateEntry(mark_laundry_complete);
-	}
 	
-		
+	date_bool = debug.show_confirm_dialog(editType);
+	boolean quit = (boolean) date_bool.get(1);
+	String chosenDate= (String) date_bool.get(0);
+	if (!quit) {
+		debug.show_note_prompt("laundry_loads", String.valueOf(laundry_id), "Laundry Note", "Would you like to add a note to this laundry entry?", options, true);
+		debug.show_note_prompt("clients", client_id, "Client Note", "Would you like to add a note to this client's profile?", options, true); 
+		if(editType == "pickup") {
+			System.out.println("pickingup");
+			//Check to make sure the laundry is marked as complete.
+			String check_complete = "SELECT load_complete FROM laundry_loads WHERE id = " + laundry_id;
+			ResultSet complete_check = zDatabaseHandlerBackend.select(check_complete);
+			try {
+				complete_check.next();
+				if(complete_check.getDate("load_complete") == null) {
+					int choice = debug.show_warning("Laundry not completed.", "The laundry is not marked as complete. Would you like to mark it complete first?");
+					if(choice == 0) {
+						edit_laundry("markComplete", laundry_id, client_id, current_user);
+					} else if(choice == 2) {
+						proceed = false;
+					}
+				} 
+				complete_check.close();
+			} catch (SQLException e) {
+				debug.show_error("Error retrieving laundry_load", "Could not retrieve laundry_load data.");
+				e.printStackTrace();
+			}
+			if (proceed) {
+				String mark_laundry_picked_up = "UPDATE laundry_loads SET pick_up = '" + chosenDate + "', pick_up_sig = '" + bWelcomeScreenWindow.getCurrUser() + "' WHERE id = " + laundry_id;
+				zDatabaseHandlerBackend.updateEntry(mark_laundry_picked_up);
+				eViewEditClientWindow.update_load_outstanding_flag(client_id);
+			} else {
+				debug.show_error("Action Canceled", "No edit will be made to the laundry load.");
+			}
+		} else if(editType == "markComplete") {
+			String mark_laundry_complete = "UPDATE laundry_loads SET load_complete = '" + chosenDate + "', load_complete_sig = '" + bWelcomeScreenWindow.getCurrUser() + "' WHERE id = " + laundry_id;
+			zDatabaseHandlerBackend.updateEntry(mark_laundry_complete);
+		}
+	} else {
+		debug.show_error("Action Canceled", "No edit will be made to the laundry load.");
+	}
 }
+
+protected void clear_laundry(String editType, int laundry_id, String client_id, String current_user) {
+	String messageType = "";
+	String column = null;
+	if (editType == "markComplete") {
+		messageType = "completion date";
+		column = "load_complete";
+	} else if (editType == "pickup") {
+		messageType = "pick-up date";
+		column = "pickup";
+	}
+
+	int response = debug.show_warning("Clear " + messageType, "Are you sure you want to clear " + messageType + "?");
+	if (response == 0) {
+		//Yes, they want to clear
+		String clear_date = "UPDATE laundry_loads SET " + column + " = null, " + column + "_sig = " + bWelcomeScreenWindow.getCurrUser() + "' WHERE id = " + laundry_id;
+		zDatabaseHandlerBackend.update(clear_date);
+		eViewEditClientWindow.update_load_outstanding_flag(client_id);
+		eViewEditClientWindow.update_eligible_today_flag(Integer.parseInt(client_id));
+		cMainDashboardWindow.update_table();
+	}
+}
+
+protected void delete_laundry(int laundry_id, String client_id) {
+	int response = debug.show_warning("Delete Laundry Load", "Are you sure you want to delete this laundry entry? This action cannot be undone!");
+	if (response == 0) {
+		//Yes, delete it
+		String delete_laundry = "DELETE FROM laundry_loads WHERE id = " + laundry_id;
+		zDatabaseHandlerBackend.update(delete_laundry);
+		eViewEditClientWindow.update_load_outstanding_flag(client_id);
+		eViewEditClientWindow.update_eligible_today_flag(Integer.parseInt(client_id));
+		cMainDashboardWindow.update_table();
+	}
+}
+
 
 private static void create_laundry_table(JScrollPane scrollPane, String laundry_query) {
 	try {
@@ -928,7 +1008,12 @@ private static void create_laundry_table(JScrollPane scrollPane, String laundry_
 				if (column == 1) {
 					//Bring up the client info page
 					//Make the client info page a separate window.
-
+					/*tabbedPane.setSelectedComponent(panelAddClient);*/
+					int client_id_row =  Integer.parseInt( (String) laundryTable.getValueAt(laundryTable.getSelectedRow(), 6));
+					//Integer.parseInt(client_id_row);
+					new eViewEditClientWindow(client_id_row);
+					//Populate the fields in the Add Client tab with the selected client
+					//populate
 					System.out.println("Client page");
 				} else if (column == 5) {
 					//Bring up the edit/view notes page

@@ -213,8 +213,8 @@ public class gDropoffWindow extends JFrame {
 				}
 				if (added) {
 					frmDropoff.dispose();
-					eViewEditClientWindow.update_eligible_today_flag(false, client_id);
-					eViewEditClientWindow.update_load_outstanding_flag(true, Integer.toString(client_id)); 
+					eViewEditClientWindow.update_eligible_today_flag(client_id);
+					eViewEditClientWindow.update_load_outstanding_flag(Integer.toString(client_id)); 
 					debug.show_error("Add Laundry Success", "Laundry Load successfully added!");
 					cMainDashboardWindow.update_table();
 				}

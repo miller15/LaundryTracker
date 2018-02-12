@@ -469,6 +469,43 @@ public class zDatabaseHandlerBackend {
 		return worked;
 	}
 
+	public static boolean updateClient(int client_id, String fName, String lName, String phone_number, Map<String, Boolean> eligibility, String notes) {
+		boolean worked = true;
+		String updateClient = "UPDATE clients SET "
+				+ "fName = '" + fName 
+				+ "', lName = '" + lName 
+				+ "', monday = " + eligibility.get("monday") 
+				+ ", tuesday = " + eligibility.get("tuesday") 
+				+ ", wednesday = " + eligibility.get("wednesday") 
+				+ ", thursday = " + eligibility.get("thursday") 
+				+ ", friday = " + eligibility.get("friday") 
+				+ ", saturday = " + eligibility.get("saturday") 
+				+ ", sunday = " + eligibility.get("sunday") 
+				+ ", eligible_today = " + eligibility.get("today") 
+				+ ", load_outstanding = " + eligibility.get("load_outstanding")
+				+ ", notes = ";
+		if(notes == null) {
+			updateClient += "null";
+		} else {
+			updateClient += "'" + notes + "'";
+		}
+		System.out.println(updateClient);
+		Connection dbConn = connect_db();
+		Statement update = null;
+		try{
+			update = dbConn.createStatement();
+			update.executeUpdate(updateClient, Statement.RETURN_GENERATED_KEYS);		    
+		} catch (SQLException e) {
+			worked = false;
+			show_error("Update Error. Please try again. If error continues, contact the developer.", e);
+			e.printStackTrace();
+		} finally{
+			disconnect_db(update);
+			disconnect_host(dbConn);
+		}
+		return worked;
+	}
+	
 	public static void delete(String delete){
 		Connection dbConn = connect_db();
 		Statement stDelete = null;
