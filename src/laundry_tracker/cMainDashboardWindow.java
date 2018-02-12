@@ -12,8 +12,13 @@ import java.awt.event.MouseEvent;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,8 +68,8 @@ public class cMainDashboardWindow extends JFrame {
 	private static String currUser;
 	//private static dViewAllClientsWindow tableContentPane;
 	private static JTable laundryTable;
-	private JTextField textFieldFName;
-	private JTextField textFieldLName;
+	private JTextField txtFnameFilter;
+	private JTextField txtLnameFilter;
 	private static JScrollPane scrollPane;
 
 	/**
@@ -325,8 +330,8 @@ public class cMainDashboardWindow extends JFrame {
 	    btngrpCompleted.add(rdbtnCompletedNo);
 	    
 	    ButtonGroup btngrpPickedup = new ButtonGroup();
-	    btngrpPickedup.add(rdbtnCompletedYes);
-	    btngrpPickedup.add(rdbtnCompletedNo);
+	    btngrpPickedup.add(rdbtnPickedupYes);
+	    btngrpPickedup.add(rdbtnPickedupNo);
 
 	    ButtonGroup btngrpEligible = new ButtonGroup();
 	    btngrpEligible.add(rdbtnEligibleYes);
@@ -340,14 +345,14 @@ public class cMainDashboardWindow extends JFrame {
 		gbc_lblFirstNameFilter.gridy = 11;
 		panelLaundryList.add(lblFirstNameFilter, gbc_lblFirstNameFilter);
 		
-		textFieldFName = new JTextField();
+		txtFnameFilter = new JTextField();
 		GridBagConstraints gbc_textFieldFName = new GridBagConstraints();
 		gbc_textFieldFName.insets = new Insets(0, 0, 5, 5);
 		gbc_textFieldFName.fill = GridBagConstraints.HORIZONTAL;
 		gbc_textFieldFName.gridx = 2;
 		gbc_textFieldFName.gridy = 11;
-		panelLaundryList.add(textFieldFName, gbc_textFieldFName);
-		textFieldFName.setColumns(10);
+		panelLaundryList.add(txtFnameFilter, gbc_textFieldFName);
+		txtFnameFilter.setColumns(10);
 		
 		JLabel lblLastNameFilter = new JLabel("Last Name");
 		GridBagConstraints gbc_lblLastNameFilter = new GridBagConstraints();
@@ -357,20 +362,21 @@ public class cMainDashboardWindow extends JFrame {
 		gbc_lblLastNameFilter.gridy = 12;
 		panelLaundryList.add(lblLastNameFilter, gbc_lblLastNameFilter);
 		
-		textFieldLName = new JTextField();
+		txtLnameFilter = new JTextField();
 		GridBagConstraints gbc_textFieldLName = new GridBagConstraints();
 		gbc_textFieldLName.insets = new Insets(0, 0, 5, 5);
 		gbc_textFieldLName.fill = GridBagConstraints.HORIZONTAL;
 		gbc_textFieldLName.gridx = 2;
 		gbc_textFieldLName.gridy = 12;
-		panelLaundryList.add(textFieldLName, gbc_textFieldLName);
-		textFieldLName.setColumns(10);
+		panelLaundryList.add(txtLnameFilter, gbc_textFieldLName);
+		txtLnameFilter.setColumns(10);
 		
 		JButton btnApplyFilters = new JButton("Apply Filters");
 		btnApplyFilters.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				String earliest_date = "";
 				String latest_date = "";
+				String single_date = "";
 				String completed = "";
 				String pickedup = "";
 				String eligible = "";
@@ -378,36 +384,81 @@ public class cMainDashboardWindow extends JFrame {
 				String lName = "";
 				boolean at_least_one = false;
 				
-				//Make all the where clauses if its filter is populated.
-				if (dateChooserEarliest.getDate() != null) {
-					earliest_date = "dropped_off > " + dateChooserEarliest.getDateFormatString();
+				//Make all the where clauses if the filter is populated.
+				System.out.println("DATE FORMAT: " + dateChooserEarliest.getDateFormatString());
+				DateFormat df_early = new SimpleDateFormat("yyyy-MM-dd 00:00:00");
+				DateFormat df_late = new SimpleDateFormat("yyyy-MM-dd 23:59:59.99");
+				//DateFormat df_same = new SimpleDateFormat("yyyy-MM-dd");
+				Date early_date = dateChooserEarliest.getDate();
+				Date late_date = dateChooserLatest.getDate();
+				if (early_date != null) {
+					earliest_date = "drop_off >= '" + df_early.format(early_date) + "'";
 				}
-				if (dateChooserLatest.getDate() != null) {
-					latest_date = "dropped_off > " + dateChooserLatest.getDateFormatString();
+				if (late_date != null) {
+					latest_date = "drop_off <= '" + df_late.format(late_date) + "'";
 				}
-				if (btngrpCompleted.getSelection().isSelected()) {
-					if (btngrpCompleted.getSelection().getActionCommand().equals("yes")) {
-						completed = " completed IS NOT NULL ";
-					} else if (btngrpCompleted.getSelection().getActionCommand().equals("no")) {
-						completed = " completed IS NULL ";
-					} else {
-						debug.print("THIS SHOULDNT HAVE HAPPENED");
+/*				if (early_date != null && late_date != null && df.format(early_date).equalsIgnoreCase(df.format(late_date))) {
+					earliest_date = latest_date = "";
+					debug.print("DATESSSS: " + earliest_date + " : " + latest_date);
+					single_date = "drop_off = '" + df.format(early_date) + "'";
+				}
+*/				
+				try {
+					if (btngrpCompleted.getSelection().isSelected()) {
+						completed = btngrpCompleted.getSelection().getActionCommand();
+/*						System.out.println("Value of completed (button model): " + completed);
+*/						if (completed.equals("completedYes")) {
+							completed = " load_complete IS NOT NULL ";
+						} else if (completed.equals("completedNo")) {
+							completed = " load_complete IS NULL ";
+						} else {
+							debug.print("THIS SHOULDNT HAVE HAPPENED completed");
+						}
 					}
+				} catch (java.lang.NullPointerException e) {
+					debug.print("Caught the error Completed: " + completed);
+					//e.printStackTrace();
 				}
-				if (btngrpPickedup.getSelection().isSelected()) {
-					pickedup = btngrpPickedup.getSelection().getActionCommand();
-				}
-				if (btngrpEligible.getSelection().isSelected()) {
-					eligible = btngrpEligible.getSelection().getActionCommand();
-				}				
-				if (!txtFname.getText().isEmpty()) {
-					fName = txtFname.getText();
-				}
-				if (!txtLname.getText().isEmpty()) {
-					lName = txtLname.getText();
+
+				try {
+					btngrpPickedup.getSelection();
+						pickedup = btngrpPickedup.getSelection().getActionCommand();
+						if (pickedup.equals("pickedUpYes")) {
+							pickedup = " pick_up IS NOT NULL ";
+						} else if (pickedup.equals("pickedUpNo")) {
+							pickedup = " pick_up IS NULL ";
+						} else {
+							debug.print("THIS SHOULDNT HAVE HAPPENED pickedup");
+						}
+				} catch (java.lang.NullPointerException e) {
+					debug.print("Caught the error Pickedup");
+					//e.printStackTrace();
 				}
 				
-				String[] filters = {earliest_date, latest_date, completed, pickedup, eligible, fName, lName};
+				try {
+					btngrpEligible.getSelection();
+					eligible = btngrpEligible.getSelection().getActionCommand();
+					if (eligible.equals("eligibleYes")) {
+						eligible = " (eligible_today = TRUE AND load_outstanding = FALSE) ";
+					} else if (eligible.equals("eligibleNo")) {
+						eligible = " (eligible_today = FALSE OR load_outstanding = TRUE) ";
+					} else {
+						debug.print("THIS SHOULDNT HAVE HAPPENED eligible");
+					}
+				} catch (java.lang.NullPointerException e) {
+					debug.print("Caught the error Eligible");
+					//e.printStackTrace();
+				}
+				if (!txtFnameFilter.getText().isEmpty()) {
+					fName = " fName = '" + txtFnameFilter.getText() + "' ";
+					System.out.println("fName text: " + fName);
+				}
+				if (!txtLnameFilter.getText().isEmpty()) {
+					lName = " lName = '" + txtLnameFilter.getText() + "' ";
+					System.out.println("lName text: " + lName);
+				}
+				
+				String[] filters = {earliest_date, latest_date, single_date, completed, pickedup, eligible, fName, lName};
 				//Make sure at least one of the filters is populated. Otherwise, there is nothing to filter so don't do anything.
 				//There is a separate "Clear Filters" button for getting the table back to its normal display.
 				for (int j = 0; j < filters.length; j++) {
@@ -449,16 +500,20 @@ public class cMainDashboardWindow extends JFrame {
 			}
 
 			private void reset_filters() {
+				debug.print("RESETTING");
 				dateChooserEarliest.setDate(null);
 				dateChooserLatest.setDate(null);
-				txtFname.setText("");
-				txtLname.setText("");
+				txtFnameFilter.setText("");
+				txtLnameFilter.setText("");
 				rdbtnCompletedYes.setSelected(false);
 				rdbtnCompletedNo.setSelected(false);
 				rdbtnPickedupYes.setSelected(false);
 				rdbtnPickedupNo.setSelected(false);
 				rdbtnEligibleYes.setSelected(false);
-				rdbtnEligibleNo.setSelected(false);				
+				rdbtnEligibleNo.setSelected(false);
+				btngrpCompleted.clearSelection();
+				btngrpPickedup.clearSelection();
+				btngrpEligible.clearSelection();
 			}
 		});
 		GridBagConstraints gbc_btnClearFilters = new GridBagConstraints();
@@ -781,13 +836,13 @@ public class cMainDashboardWindow extends JFrame {
 protected String generate_filter_query(String[] filters) {
 	List full_filters = new ArrayList();
 	String laundry_query = 
-		  "SELECT laundry_loads.id, "
+		  "SELECT ll.id, "
 		+ "CONCAT(fName, ' ', lName) AS Name, "
 		+ "CONCAT(drop_off) AS 'Dropped Off On', "
 		+ "CONCAT(load_complete) AS 'Completed On', "
 		+ "CONCAT(pick_up) AS 'Picked Up On', "
-		+ "CONCAT(laundry_loads.notes) AS 'Note', "
-		+ "CONCAT(clients.id) AS 'Client ID' "
+		+ "CONCAT(ll.notes) AS 'Note', "
+		+ "CONCAT(c.id) AS 'Client ID' "
 		+ "FROM laundry_loads ll "
 		+ "JOIN clients c "
 		+ "ON ll.client_id = c.id WHERE ";
@@ -806,7 +861,7 @@ protected String generate_filter_query(String[] filters) {
 			laundry_query += " AND ";
 		}
 	}
-	
+	debug.print("Filter Query: " + laundry_query);
 		return laundry_query;
 	}
 
