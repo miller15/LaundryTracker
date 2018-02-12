@@ -376,9 +376,23 @@ public class cMainDashboardWindow extends JFrame {
 				String eligible = "";
 				String fName = "";
 				String lName = "";
+				boolean at_least_one = false;
 				
+				//Make all the where clauses if its filter is populated.
+				if (dateChooserEarliest.getDate() != null) {
+					earliest_date = "dropped_off > " + dateChooserEarliest.getDateFormatString();
+				}
+				if (dateChooserLatest.getDate() != null) {
+					latest_date = "dropped_off > " + dateChooserLatest.getDateFormatString();
+				}
 				if (btngrpCompleted.getSelection().isSelected()) {
-					completed = btngrpCompleted.getSelection().getActionCommand();
+					if (btngrpCompleted.getSelection().getActionCommand().equals("yes")) {
+						completed = " completed IS NOT NULL ";
+					} else if (btngrpCompleted.getSelection().getActionCommand().equals("no")) {
+						completed = " completed IS NULL ";
+					} else {
+						debug.print("THIS SHOULDNT HAVE HAPPENED");
+					}
 				}
 				if (btngrpPickedup.getSelection().isSelected()) {
 					pickedup = btngrpPickedup.getSelection().getActionCommand();
@@ -386,14 +400,31 @@ public class cMainDashboardWindow extends JFrame {
 				if (btngrpEligible.getSelection().isSelected()) {
 					eligible = btngrpEligible.getSelection().getActionCommand();
 				}				
+				if (!txtFname.getText().isEmpty()) {
+					fName = txtFname.getText();
+				}
+				if (!txtLname.getText().isEmpty()) {
+					lName = txtLname.getText();
+				}
 				
 				String[] filters = {earliest_date, latest_date, completed, pickedup, eligible, fName, lName};
-				if(earliest_date.isEmpty() && latest_date.isEmpty() && ) {
+				//Make sure at least one of the filters is populated. Otherwise, there is nothing to filter so don't do anything.
+				//There is a separate "Clear Filters" button for getting the table back to its normal display.
+				for (int j = 0; j < filters.length; j++) {
+					if (!filters[j].isEmpty()) {
+						at_least_one = true;
+						break;
+					}
+				}
+				if (at_least_one) {
+					create_laundry_table(scrollPane, generate_filter_query(filters));
+				}
+/*				if(earliest_date.isEmpty() && latest_date.isEmpty() && completed.isEmpty() && pickedup.isEmpty() && eligible.isEmpty() && fName.isEmpty() && lName.isEmpty()) {
 					debug.print("Nothing was filled");
 				} else {
 					create_laundry_table(scrollPane, generate_filter_query(filters));
 				}
-			}
+*/			}
 		});
 		GridBagConstraints gbc_btnApplyFilters = new GridBagConstraints();
 		gbc_btnApplyFilters.gridwidth = 3;
@@ -761,13 +792,22 @@ protected String generate_filter_query(String[] filters) {
 		+ "JOIN clients c "
 		+ "ON ll.client_id = c.id WHERE ";
 
+	//Populate the list with the filters that the user indicated.
 	for (int i=0; i<filters.length; i++) {
 		if (!filters[i].isEmpty()) {
 			full_filters.add(filters[i]);
 		}
 	}
+	//Add the appropriate WHERE clauses to the query
+	int list_length = full_filters.size();
+	for (int i=0; i<list_length; i++) {
+		laundry_query += full_filters.get(i);
+		if(i+1 != list_length) {
+			laundry_query += " AND ";
+		}
+	}
 	
-		return null;
+		return laundry_query;
 	}
 
 protected void edit_laundry(String editType, int laundry_id, String client_id, String current_user) {
