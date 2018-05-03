@@ -85,7 +85,7 @@ public class eViewEditClientWindow extends JFrame{
 
 		frmEditContact = new JFrame();
 		frmEditContact.setTitle("View/UpdateContact");
-		frmEditContact.setBounds(100, 100, 586, 685);
+		frmEditContact.setBounds(100, 100, 922, 685);
 		
 		panel = new JPanel();
 		panel.setBorder(new TitledBorder(new EtchedBorder()));
@@ -271,20 +271,20 @@ public class eViewEditClientWindow extends JFrame{
 		gbc_textArea.gridy = 15;
 		scrollPaneNotes.setViewportView(txtNotesClient);
 				
-		JButton button = new JButton("Cancel");
-		button.addActionListener(new ActionListener() {
+		JButton btnCancel = new JButton("Cancel");
+		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				frmEditContact.dispose();
 			}
 		});
-		GridBagConstraints gbc_button = new GridBagConstraints();
-		gbc_button.insets = new Insets(0, 0, 0, 5);
-		gbc_button.gridx = 0;
-		gbc_button.gridy = 15;
-		panel.add(button, gbc_button);
+		GridBagConstraints gbc_btnCancel = new GridBagConstraints();
+		gbc_btnCancel.insets = new Insets(0, 0, 0, 5);
+		gbc_btnCancel.gridx = 0;
+		gbc_btnCancel.gridy = 15;
+		panel.add(btnCancel, gbc_btnCancel);
 		
-		JButton button_1 = new JButton("Submit Changes");
-		button_1.addActionListener(new ActionListener() {
+		JButton btnSubmitChanges = new JButton("Submit Changes");
+		btnSubmitChanges.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				boolean proceed = validateFields();
 				if(proceed) {
@@ -294,10 +294,10 @@ public class eViewEditClientWindow extends JFrame{
 				
 			}
 		});
-		GridBagConstraints gbc_button_1 = new GridBagConstraints();
-		gbc_button_1.gridx = 1;
-		gbc_button_1.gridy = 15;
-		panel.add(button_1, gbc_button_1);
+		GridBagConstraints gbc_btnSubmitChanges = new GridBagConstraints();
+		gbc_btnSubmitChanges.gridx = 1;
+		gbc_btnSubmitChanges.gridy = 15;
+		panel.add(btnSubmitChanges, gbc_btnSubmitChanges);
 		frmEditContact.setVisible(true);
 
 		populate_window(client_id);
@@ -359,7 +359,9 @@ public class eViewEditClientWindow extends JFrame{
 	public static void update_client(int client_id) {
 		boolean success;
 		String fName = txtFname.getText();
+		System.out.println("fName::" + fName);
 		String lName = txtLname.getText();
+		System.out.println("lName::" + lName);
 		String phone_number = txtPhone.getText();
 		boolean monday = chkMonday.isSelected();
 		boolean tuesday = chkTuesday.isSelected();
@@ -371,6 +373,7 @@ public class eViewEditClientWindow extends JFrame{
 		boolean eligible_today = chkEligibleToday.isSelected();
 		boolean load_outstanding = chkLoadOutstanding.isSelected();
 		String notes = txtNotesClient.getText();
+		System.out.println("NOTES:" + notes);
 
 		Map<String, Boolean> eligibility = new HashMap<String, Boolean>() ;
 		eligibility.put("monday", monday);
@@ -388,9 +391,10 @@ public class eViewEditClientWindow extends JFrame{
 		} 
 		success = zDatabaseHandlerBackend.updateClient(client_id, fName, lName, phone_number, eligibility, notes);
 		if(success){
-			JOptionPane.showConfirmDialog(null, "Client " + fName + " " + lName + " added successfully.", "Success", -1);
+			JOptionPane.showConfirmDialog(null, "Client " + fName + " " + lName + " updated successfully.", "Success", -1);
+			cMainDashboardWindow.update_table();
 		} else {
-			JOptionPane.showConfirmDialog(null, "Client " + fName + " " + lName + " could not be added.", "Failure", -1);
+			JOptionPane.showConfirmDialog(null, "Client " + fName + " " + lName + " could not be updated.", "Failure", -1);
 		}
 	}
 	

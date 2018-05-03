@@ -587,7 +587,7 @@ public class cMainDashboardWindow extends JFrame {
 		panelAddClient.add(txtFname, gbc_txtFname);
 		txtFname.setColumns(10);
 		
-		JLabel lblLastName = new JLabel("Last Name");
+		JLabel lblLastName = new JLabel("*Last Name");
 		GridBagConstraints gbc_lblLastName = new GridBagConstraints();
 		gbc_lblLastName.anchor = GridBagConstraints.EAST;
 		gbc_lblLastName.insets = new Insets(0, 0, 5, 5);
@@ -764,13 +764,8 @@ public class cMainDashboardWindow extends JFrame {
 					txtLname.setText("");
 					valid = false;
 				} else if (lName.length() < 1){
-					int selection = show_warning("Last Name", "Are you sure the last name should be blank?");
-					if (selection == 1) {
-						valid = false;
-						System.out.println(valid);
-					} else {
-						txtLname.setText(" ");
-					}
+					show_error("Last Name", "Please enter a last name");
+					valid = false;
 				} 	
 				return valid;
 			}

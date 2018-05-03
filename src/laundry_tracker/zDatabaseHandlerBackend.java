@@ -14,8 +14,10 @@ import java.util.Map;
 import javax.swing.JOptionPane;
 
 public class zDatabaseHandlerBackend {
-	static final String HOST_URL = "jdbc:mysql://localhost/";
+	//static final String HOST_URL = "jdbc:mysql://localhost/";
+	static final String HOST_URL = "jdbc:mysql://localhost:3306/mysql";
 	static final String DB_URL = "jdbc:mysql://localhost/laundry_tracker";
+
 	static Connection connHost = null;
 
 	static String USER = "root";
@@ -52,13 +54,17 @@ public class zDatabaseHandlerBackend {
 		//Connection hostConn = null;
 		try {
 			System.out.println("trying connect to db");
+			System.out.println("HOST_URL: " + HOST_URL);
+			System.out.println("USER: " + USER);
+			System.out.println("PASS: " + PASS);
 			connHost = DriverManager.getConnection(HOST_URL, USER, PASS);
 			//JOptionPane.showConfirmDialog(null, "Connected!!", "Connection Established", -1);
 			
 		} catch (SQLException e) {
 			String message = e.getMessage();
-			System.out.println("MESSAGE: " + message);
 			e.printStackTrace();
+			System.out.println("MESSAGE: " + message);
+			//e.printStackTrace();
 			USER = (String)JOptionPane.showInputDialog(null, "It appears you changed the database's username. Please enter the new db username (default was root)", "Username", JOptionPane.PLAIN_MESSAGE);
 			System.out.println("USER:::::: "+ USER);
 			PASS = (String)JOptionPane.showInputDialog(null, "It appears you changed the database's password. Please enter the new db password (default was admin)", "Password", JOptionPane.PLAIN_MESSAGE);
@@ -93,6 +99,45 @@ public class zDatabaseHandlerBackend {
 		return stmtCreateDB;
 	}
 	
+	private static void check_update_db_tables(Connection dbConn)
+	{
+		String checkUniqueNameConstraint = "SELECT constraint_name FROM information_schema.table_constraints " + 
+				"WHERE constraint_schema = 'laundry_tracker' " +
+				"AND constraint_name = 'unique_name' OR constraint_name = 'unique_name_archive'";
+		String addUniqueNameConstraint = "ALTER TABLE clients ADD CONSTRAINT " + 
+				"unique_name UNIQUE " + 
+				"(" +
+				"fName," + 
+				"lName" + 
+				");";
+		ResultSet unique_name_constraint = select(checkUniqueNameConstraint);
+
+		try {
+			unique_name_constraint.next();
+			if(unique_name_constraint.getString("constraint_name") == null) {
+				update_db_tables(dbConn, addUniqueNameConstraint);
+				System.out.println("Successfully updated the table constraint.");
+			} else {
+				System.out.println("Constraint already exists.");
+			}
+			unique_name_constraint.close();
+		} catch (SQLException e) {
+			debug.show_error("Error checking for constraint", e);
+			e.printStackTrace();
+		}
+	}
+	
+	private static void update_db_tables(Connection dbConn, String update_string) {
+		Statement stmtUpdateT = null;
+		try {
+			stmtUpdateT = dbConn.createStatement();
+			stmtUpdateT.executeUpdate(update_string);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		System.out.println("Successfully added the constraint.");
+	}
+	
 	private static void create_db_tables(Connection dbConn)
 	{
 		Statement stmtCreateT = null;
@@ -121,7 +166,8 @@ public class zDatabaseHandlerBackend {
 					//eligible_today value gets updated via Windows Task Scheduler event named UpdateTodayFlag. Bash script located in C:\ProgramData\MySQL\MySQL Server 5.7\ updateTodayFlag.sh
 					"eligible_today bool NOT NULL DEFAULT TRUE COMMENT 'This will save the state of a clients laundry for the current day. At midnight, all clients eligible_today statuses will reset to TRUE using an auto event created with windows task scheduler', " +
 					"load_outstanding bool NOT NULL DEFAULT FALSE COMMENT 'This indicates if a user has any loads they havent picked up yet. True means they have dropped off or completed loads that havent been picked up. False means theyre all caught up and good to go!', " +
-					"notes BLOB)";
+					"notes BLOB, " + 
+					"CONSTRAINT unique_name UNIQUE (fName,lName))";
 
 			String createLaundryLoads = "CREATE TABLE IF NOT EXISTS laundry_loads(" +
 					"id INT PRIMARY KEY AUTO_INCREMENT, " +
@@ -152,7 +198,8 @@ public class zDatabaseHandlerBackend {
 					"sunday bool NOT NULL DEFAULT TRUE, " + 
 					"eligible_today bool NOT NULL DEFAULT TRUE COMMENT 'This will save the state of a clients laundry for the current day. Since its an archive, it does not get updated.', " +
 					"load_outstanding bool NOT NULL DEFAULT FALSE COMMENT 'This indicates if a user has any loads they havent picked up yet. True means they have dropped off or completed loads that havent been picked up. False means theyre all caught up and good to go!', " +
-					"notes BLOB)";
+					"notes BLOB, " +
+					"CONSTRAINT unique_name UNIQUE (fName,lName))";
 			
 			String createLaundryLoadsArchive = "CREATE TABLE IF NOT EXISTS laundry_loads_archive("
 					+ "id INT PRIMARY KEY AUTO_INCREMENT, "
@@ -165,7 +212,7 @@ public class zDatabaseHandlerBackend {
 					+ "pick_up_sig varChar(15) COMMENT 'This is the username of the person who handed the laundry to the client.', "
 					+ "notes BLOB, "
 					+ "FOREIGN KEY(client_id) REFERENCES clients_archive(id) ON DELETE CASCADE ON UPDATE CASCADE)";
-			
+					
 /*			stmtCreateT.executeUpdate("DROP TABLE IF EXISTS users");
 			System.out.println("Successfully dropped the users table.");
 			stmtCreateT.executeUpdate("DROP TABLE IF EXISTS laundry_loads");
@@ -176,7 +223,8 @@ public class zDatabaseHandlerBackend {
 			System.out.println("Successfully dropped the laundry_loads_archive table.");
 			stmtCreateT.executeUpdate("DROP TABLE IF EXISTS clients_archive");
 			System.out.println("Successfully dropped the clients_archive table.");
-*/			stmtCreateT.executeUpdate(createUsers);
+*/
+			stmtCreateT.executeUpdate(createUsers);
 			System.out.println("Successfully created the users table.");
 			stmtCreateT.executeUpdate(createClients);
 			System.out.println("Successfully created the clients table.");
@@ -235,6 +283,9 @@ public class zDatabaseHandlerBackend {
 		Connection connDB = connect_db(); //connecting to the actual DB we just created on the host					
 		create_db_tables(connDB);
 		System.out.println("DB SUCCESS!!!!");
+		
+		check_update_db_tables(connDB);
+		System.out.println("UPDATE SUCCESS!!!");
 		
 		disconnect_db(stmtCreateDB);
 		disconnect_host(connHost);
@@ -487,7 +538,8 @@ public class zDatabaseHandlerBackend {
 		} else {
 			updateClient += "'" + notes + "'";
 		}
-		System.out.println(updateClient);
+		updateClient += " WHERE id = " + client_id;
+		System.out.println("updateClient: " + updateClient);
 		Connection dbConn = connect_db();
 		Statement update = null;
 		try{
