@@ -68,7 +68,7 @@ public class gDropoffWindow extends JFrame {
 		
 		frmDropoff = new JFrame();
 		frmDropoff.setTitle("Laundry Dropoff");
-		frmDropoff.setBounds(100, 100, 465, 486);
+		frmDropoff.setBounds(100, 100, 820, 486);
 		//frmDropoff.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmDropoff.getContentPane().setLayout(new MigLayout("", "[][][grow]", "[][][][][:10.00:20px,grow][:50px:50px,grow 50][][][][]"));
 		
@@ -95,6 +95,7 @@ public class gDropoffWindow extends JFrame {
 		
 		JDateChooser dateChooser = new JDateChooser();
 		dateChooser.setToolTipText("If left blank, default to current date");
+		dateChooser.setDate(new Date());
 		frmDropoff.getContentPane().add(dateChooser, "cell 2 4,grow");
 		
 		JLabel lblLaundryNotes = new JLabel("Notes:");
@@ -123,6 +124,7 @@ public class gDropoffWindow extends JFrame {
 				String fName = txtFname.getText();
 				String lName = txtLname.getText();
 				java.util.Date dropOffDate = dateChooser.getDate();
+				System.out.println("DROP OFF::" + dropOffDate);
 				String notes = textAreaNotes.getText();
 				String currUser = bWelcomeScreenWindow.getCurrUser();
 				String dayOfWeek;
