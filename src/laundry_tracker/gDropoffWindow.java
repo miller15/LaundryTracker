@@ -48,7 +48,7 @@ public class gDropoffWindow extends JFrame {
 					gDropoffWindow frame = new gDropoffWindow();
 					//frame.setVisible(true);
 				} catch (Exception e) {
-					System.out.println("DIDNT GET FAR");
+					System.out.println("Oops, didnt get far :P");
 					e.printStackTrace();
 				}
 			}
