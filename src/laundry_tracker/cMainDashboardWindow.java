@@ -73,7 +73,6 @@ public class cMainDashboardWindow extends JFrame {
 	private static JScrollPane scrollPane;
 	private static JTabbedPane tabbedPane;
 	private static JPanel panelAddClient;
-	//private static hViewAllClients panelViewAllClients;
 	
 	//ViewAllClients
 	JPanel panelViewAllClients;
@@ -105,7 +104,6 @@ public class cMainDashboardWindow extends JFrame {
 		setBounds(100, 100, 1015, 702);
 		panelAddClient = new JPanel();
 		panelAddClient.setBorder(new TitledBorder(new EtchedBorder(), "Fill out the fields to enter a new client into the database. (* indicates required field)"));
-		//panelViewAllClients = new hViewAllClients();
 		
 		tabbedPane = new JTabbedPane();
 		tabbedPane.setBorder(new CompoundBorder(new LineBorder(new Color(128, 0, 0), 2, true), new LineBorder(new Color(218, 165, 32))));

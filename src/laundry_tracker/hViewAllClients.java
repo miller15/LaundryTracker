@@ -1,4 +1,4 @@
-/*package laundry_tracker;
+package laundry_tracker;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
@@ -67,7 +67,7 @@ public class hViewAllClients extends JPanel{
 						if (column == 1) {
 							//Bring up the client info page
 							//Make the client info page a separate window.
-							tabbedPane.setSelectedComponent(panelViewAllClients);
+							//tabbedPane.setSelectedComponent(panelViewAllClients);
 							int client_id_row =  Integer.parseInt( (String) clientsTable.getValueAt(clientsTable.getSelectedRow(), 6));
 							//Integer.parseInt(client_id_row);
 							new eViewEditClientWindow(client_id_row);
@@ -122,9 +122,5 @@ public class hViewAllClients extends JPanel{
 				        return false;
 				    }
 				};
-		}
-
-	
-	
-	
-	}*/
+		}	
+	}
