@@ -24,7 +24,6 @@ import javax.swing.text.JTextComponent;
 
 public class AutoCompleteJComboBox extends JComboBox{
 
-	static final long serialVersionUID = 4321421L;
 	private Searchable<String,String> searchable;
 
 	/**
