@@ -96,7 +96,7 @@ public class AutoCompletion extends PlainDocument {
         }
     }
     
-    public void remove(int offs, int len) throws BadLocationException {
+/*    public void remove(int offs, int len) throws BadLocationException {
         // return immediately when selecting an item
         if (selecting) return;
         if (hitBackspace) {
@@ -113,7 +113,7 @@ public class AutoCompletion extends PlainDocument {
             super.remove(offs, len);
         }
     }
-    
+*/    
     public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
         // return immediately when selecting an item
         if (selecting) return;
@@ -133,12 +133,15 @@ public class AutoCompletion extends PlainDocument {
             // provide feedback to the user that his input has been received but can not be accepted
             comboBox.getToolkit().beep(); // when available use: UIManager.getLookAndFeel().provideErrorFeedback(comboBox);
         }
-*/        setText(item.toString());
+*/       
+        setText(item.toString());
 		boolean listContainsSelectedItem = true;
 		if (item == null) {
 			// no item matches => use the current input as selected item
 			item=getText(0, getLength());
 			listContainsSelectedItem=false;
+		} else {
+			model.setSelectedItem(item);
 		}
 
 // select the completed part

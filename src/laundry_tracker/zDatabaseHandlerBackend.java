@@ -435,6 +435,28 @@ public class zDatabaseHandlerBackend {
 		return worked;
 	}
 	
+	public static boolean addClient(String fName, String lName) {
+		boolean worked = true;
+		//System.out.println("Current User from zDatabaseHandlerBackend Class: " + currentUser);
+		String insertClient = "INSERT INTO clients(fName, lName, monday, tuesday, wednesday, thursday, friday, saturday, sunday) VALUES ('"
+				+ fName + "', '" + lName + "', " + true + ", " + true + ", " + true + ", " + true + ", " + true + ", " + true + ", " + true + ")";
+		System.out.println(insertClient);
+		Connection dbConn = connect_db();
+		Statement insert = null;
+		try{
+			insert = dbConn.createStatement();
+			insert.executeUpdate(insertClient, Statement.RETURN_GENERATED_KEYS);		    
+		} catch (SQLException e) {
+			worked = false;
+			show_error("Insert Error. Please try again. If error continues, contact the developer.", e);
+			e.printStackTrace();
+		} finally{
+			disconnect_db(insert);
+			disconnect_host(dbConn);
+		}
+		return worked;
+	}
+	
 	public static boolean addLaundryLoad(int client_id, java.util.Date dropOffDate, String drop_off_sig, String notes) {
 		boolean worked = true;
 		java.sql.Date sqlDate = null;

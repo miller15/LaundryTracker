@@ -164,7 +164,13 @@ public class gDropoffWindow extends JFrame {
 					} catch (SQLException e) {
 						//No client existed
 						moveon = false;
-						debug.show_error("No Client Exists", "There is no client with that name currently in the database. Please add the client first!");
+						int decision = debug.show_question("No Client Exists", "There is no client with that name currently in the database. Would you like to add the client with the default eligibility?");
+						if(decision == 0) {
+							//user wants to add the client
+							if(zDatabaseHandlerBackend.addClient(fName, lName)) {
+								btnAddLaundry.doClick();
+							}
+						}
 					}
 
 					if(clientNote != null) {

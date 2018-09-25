@@ -67,6 +67,13 @@ public class debug {
 		return selection;
 	}
 	
+	public static int show_question(String title, Object message)
+	{
+		int selection = JOptionPane.showConfirmDialog(null, message, title, JOptionPane.YES_NO_OPTION);
+		// 0=yes; 1=no
+		return selection;
+	}
+	
 	/**
 	 * @wbp.parser.entryPoint
 	 */
