@@ -593,6 +593,27 @@ public class zDatabaseHandlerBackend {
 		}
 	}
 	
+	public static ResultSet getClientNames() {
+		String clientNamesQuery = "SELECT concat(fName, ' ', lName) AS fullName FROM clients;";
+		ResultSet clientNames = select(clientNamesQuery);
+		return clientNames;
+	}
+		
+	public static int getNumClients() {
+		String countClients = "SELECT count(*) AS numClients FROM clients;";
+		ResultSet clientCount = select(countClients);
+		int count = 0;
+		try {
+			while(clientCount.next()) {
+				count = clientCount.getInt("numClients");
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return count;
+	}
+	
 	public static ResultSet select(String sql) {
 		Connection dbConn = connect_db();
 		Statement select = null;
