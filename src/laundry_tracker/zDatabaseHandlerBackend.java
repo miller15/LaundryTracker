@@ -648,6 +648,7 @@ public class zDatabaseHandlerBackend {
 
 		ResultSet rs = null;
 		try {
+			System.out.println(sql);
 			rs = select.executeQuery(sql);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

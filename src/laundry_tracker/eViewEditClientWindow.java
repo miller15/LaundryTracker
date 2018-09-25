@@ -290,6 +290,8 @@ public class eViewEditClientWindow extends JFrame{
 				if(proceed) {
 					update_client(client_id);
 					populate_window(client_id);
+					cMainDashboardWindow.update_table();
+					cMainDashboardWindow.update_clients_table();
 				}
 				
 			}
