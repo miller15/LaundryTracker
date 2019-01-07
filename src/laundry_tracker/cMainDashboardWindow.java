@@ -54,6 +54,8 @@ import java.awt.Font;
 import com.toedter.calendar.JDateChooser;
 import javax.swing.JToggleButton;
 import javax.swing.JRadioButton;
+import java.awt.FlowLayout;
+import javax.swing.BoxLayout;
 
 
 public class cMainDashboardWindow extends JFrame {
@@ -515,6 +517,8 @@ public class cMainDashboardWindow extends JFrame {
 		panelLaundryList.add(btnApplyFilters, gbc_btnApplyFilters);
 		
 		JButton btnGenerateReport = new JButton("Generate Report");
+		btnGenerateReport.setToolTipText("To generate a report, highlight the rows you'd like to include and copy paste them into a csv or word doc.");
+		btnGenerateReport.setEnabled(false);
 		GridBagConstraints gbc_btnGenerateReport = new GridBagConstraints();
 		gbc_btnGenerateReport.gridwidth = 3;
 		gbc_btnGenerateReport.insets = new Insets(0, 0, 5, 5);
@@ -812,7 +816,7 @@ public class cMainDashboardWindow extends JFrame {
 					ftfPhone.setText("");
 					JOptionPane.showConfirmDialog(null, "Client " + fName + " " + lName + " added successfully.", "Success", -1);
 					//UPDATE THE TABLE HERE
-					//tableContentPane.updateTable();
+					create_clients_table(scrollPaneClients);
 				} else {
 					JOptionPane.showConfirmDialog(null, "Client " + fName + " " + lName + " could not be added.", "Failure", -1);
 				}
@@ -824,7 +828,8 @@ public class cMainDashboardWindow extends JFrame {
 		
 		//ViewClientPanel
 		panelViewAllClients = new JPanel();
-		panelViewAllClients.setBorder(new TitledBorder(new EtchedBorder(), "All the clients in the system are visible."));		
+		panelViewAllClients.setBorder(new TitledBorder(new EtchedBorder(), "All the clients in the system are visible."));
+		panelViewAllClients.setLayout(new BoxLayout(panelViewAllClients, BoxLayout.X_AXIS));
 		scrollPaneClients = new JScrollPane();
 		GridBagConstraints gbc_scrollPaneClients = new GridBagConstraints();
 		gbc_scrollPaneClients.insets = new Insets(0, 0, 5, 0);
@@ -832,10 +837,38 @@ public class cMainDashboardWindow extends JFrame {
 		gbc_scrollPaneClients.fill = GridBagConstraints.BOTH;
 		gbc_scrollPaneClients.gridx = 3;
 		gbc_scrollPaneClients.gridy = 0;
-		panelViewAllClients.add(scrollPaneClients, gbc_scrollPaneClients);
+		panelViewAllClients.add(scrollPaneClients);
 		create_clients_table(scrollPaneClients);
 
 		tabbedPane.add("View Clients", panelViewAllClients);
+		
+		JPanel panel = new JPanel();
+		panelViewAllClients.add(panel);
+		GridBagLayout gbl_panel = new GridBagLayout();
+		gbl_panel.columnWidths = new int[]{0, 0};
+		gbl_panel.rowHeights = new int[]{0, 0};
+		gbl_panel.columnWeights = new double[]{0.0, Double.MIN_VALUE};
+		gbl_panel.rowWeights = new double[]{0.0, Double.MIN_VALUE};
+		panel.setLayout(gbl_panel);
+		
+		JButton btnMerge = new JButton("Merge");
+		btnMerge.setToolTipText("Highlight two clients by selecting one, then ctrl+click another client.");
+		btnMerge.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int[] client_ids = clientsTable.getSelectedRows();
+				if(client_ids.length != 2) {
+					debug.show_error("Merge Incomplete", "Please ctrl+click two clients to merge.");
+				} else {
+					int client_id1 = (int) clientsTable.getValueAt(client_ids[0], 0);
+					int client_id2 = (int) clientsTable.getValueAt(client_ids[1], 0);
+					new iMergeClientsWindow(client_id1, client_id2);
+				}
+			}
+		});
+		GridBagConstraints gbc_btnMerge = new GridBagConstraints();
+		gbc_btnMerge.gridx = 0;
+		gbc_btnMerge.gridy = 0;
+		panel.add(btnMerge, gbc_btnMerge);
 
 		
 /*		JButton btnSend = new JButton("Send");
