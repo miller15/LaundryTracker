@@ -576,9 +576,9 @@ public class cMainDashboardWindow extends JFrame {
 		//tabbedPane.add("View Clients", panelViewAllClients);
 		GridBagLayout gbl_panelAddClient = new GridBagLayout();
 		gbl_panelAddClient.columnWidths = new int[]{0, 0, 0};
-		gbl_panelAddClient.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_panelAddClient.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		gbl_panelAddClient.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
-		gbl_panelAddClient.rowWeights = new double[]{0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE};
+		gbl_panelAddClient.rowWeights = new double[]{0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE};
 		panelAddClient.setLayout(gbl_panelAddClient);
 		
 		JLabel lblFirstName = new JLabel("*First Name");
@@ -662,13 +662,20 @@ public class cMainDashboardWindow extends JFrame {
 		gbc_lblDefaultIsEligible.gridy = 4;
 		panelAddClient.add(lblDefaultIsEligible, gbc_lblDefaultIsEligible);
 		
+		JButton btnClearAllChecks = new JButton("Clear all checks");
+		GridBagConstraints gbc_btnClearAllChecks = new GridBagConstraints();
+		gbc_btnClearAllChecks.insets = new Insets(0, 0, 5, 0);
+		gbc_btnClearAllChecks.gridx = 1;
+		gbc_btnClearAllChecks.gridy = 5;		
+		panelAddClient.add(btnClearAllChecks, gbc_btnClearAllChecks);
+		
 		JCheckBox chckbxMonday = new JCheckBox("Monday");
 		chckbxMonday.setSelected(true);
 		GridBagConstraints gbc_chckbxMonday = new GridBagConstraints();
 		gbc_chckbxMonday.anchor = GridBagConstraints.WEST;
 		gbc_chckbxMonday.insets = new Insets(0, 0, 5, 0);
 		gbc_chckbxMonday.gridx = 1;
-		gbc_chckbxMonday.gridy = 5;
+		gbc_chckbxMonday.gridy = 6;
 		panelAddClient.add(chckbxMonday, gbc_chckbxMonday);
 						
 		JCheckBox chckbxTuesday = new JCheckBox("Tuesday");
@@ -677,7 +684,7 @@ public class cMainDashboardWindow extends JFrame {
 		gbc_chckbxTuesday.anchor = GridBagConstraints.WEST;
 		gbc_chckbxTuesday.insets = new Insets(0, 0, 5, 0);
 		gbc_chckbxTuesday.gridx = 1;
-		gbc_chckbxTuesday.gridy = 6;
+		gbc_chckbxTuesday.gridy = 7;
 		panelAddClient.add(chckbxTuesday, gbc_chckbxTuesday);
 		
 		JCheckBox chckbxWednesday = new JCheckBox("Wednesday");
@@ -686,7 +693,7 @@ public class cMainDashboardWindow extends JFrame {
 		gbc_chckbxWednesday.anchor = GridBagConstraints.WEST;
 		gbc_chckbxWednesday.insets = new Insets(0, 0, 5, 0);
 		gbc_chckbxWednesday.gridx = 1;
-		gbc_chckbxWednesday.gridy = 7;
+		gbc_chckbxWednesday.gridy = 8;
 		panelAddClient.add(chckbxWednesday, gbc_chckbxWednesday);
 		
 		JCheckBox chckbxThursday = new JCheckBox("Thursday");
@@ -695,7 +702,7 @@ public class cMainDashboardWindow extends JFrame {
 		gbc_chckbxThursday.anchor = GridBagConstraints.WEST;
 		gbc_chckbxThursday.insets = new Insets(0, 0, 5, 0);
 		gbc_chckbxThursday.gridx = 1;
-		gbc_chckbxThursday.gridy = 8;
+		gbc_chckbxThursday.gridy = 9;
 		panelAddClient.add(chckbxThursday, gbc_chckbxThursday);
 		
 		JCheckBox chckbxFriday = new JCheckBox("Friday");
@@ -704,7 +711,7 @@ public class cMainDashboardWindow extends JFrame {
 		gbc_chckbxFriday.anchor = GridBagConstraints.WEST;
 		gbc_chckbxFriday.insets = new Insets(0, 0, 5, 0);
 		gbc_chckbxFriday.gridx = 1;
-		gbc_chckbxFriday.gridy = 9;
+		gbc_chckbxFriday.gridy = 10;
 		panelAddClient.add(chckbxFriday, gbc_chckbxFriday);
 		
 		JCheckBox chckbxSaturday = new JCheckBox("Saturday");
@@ -713,7 +720,7 @@ public class cMainDashboardWindow extends JFrame {
 		gbc_chckbxSaturday.anchor = GridBagConstraints.WEST;
 		gbc_chckbxSaturday.insets = new Insets(0, 0, 5, 0);
 		gbc_chckbxSaturday.gridx = 1;
-		gbc_chckbxSaturday.gridy = 10;
+		gbc_chckbxSaturday.gridy = 11;
 		panelAddClient.add(chckbxSaturday, gbc_chckbxSaturday);
 		
 		JCheckBox chckbxSunday = new JCheckBox("Sunday");
@@ -722,7 +729,7 @@ public class cMainDashboardWindow extends JFrame {
 		gbc_chckbxSunday.anchor = GridBagConstraints.WEST;
 		gbc_chckbxSunday.insets = new Insets(0, 0, 5, 0);
 		gbc_chckbxSunday.gridx = 1;
-		gbc_chckbxSunday.gridy = 11;
+		gbc_chckbxSunday.gridy = 12;
 		panelAddClient.add(chckbxSunday, gbc_chckbxSunday);
 		
 		JLabel lblNotes = new JLabel("Notes");
@@ -730,7 +737,7 @@ public class cMainDashboardWindow extends JFrame {
 		gbc_lblNotes.anchor = GridBagConstraints.EAST;
 		gbc_lblNotes.insets = new Insets(0, 0, 5, 5);
 		gbc_lblNotes.gridx = 0;
-		gbc_lblNotes.gridy = 12;
+		gbc_lblNotes.gridy = 13;
 		panelAddClient.add(lblNotes, gbc_lblNotes);
 		
 		JTextArea txtNotes = new JTextArea();
@@ -741,12 +748,24 @@ public class cMainDashboardWindow extends JFrame {
 		gbc_txtNotes.insets = new Insets(0, 0, 5, 0);
 		gbc_txtNotes.fill = GridBagConstraints.BOTH;
 		gbc_txtNotes.gridx = 1;
-		gbc_txtNotes.gridy = 12;
+		gbc_txtNotes.gridy = 13;
 		panelAddClient.add(txtNotes, gbc_txtNotes);
 		GridBagConstraints gbc_btnAdd = new GridBagConstraints();
 		gbc_btnAdd.anchor = GridBagConstraints.WEST;
 		gbc_btnAdd.gridx = 1;
-		gbc_btnAdd.gridy = 13;
+		gbc_btnAdd.gridy = 14;
+		
+		btnClearAllChecks.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				chckbxMonday.setSelected(false);
+				chckbxTuesday.setSelected(false);
+				chckbxWednesday.setSelected(false);
+				chckbxThursday.setSelected(false);
+				chckbxFriday.setSelected(false);
+				chckbxSaturday.setSelected(false);
+				chckbxSunday.setSelected(false);
+			}
+		});
 		
 		JButton btnAdd = new JButton("Add");
 		btnAdd.addActionListener(new ActionListener() {

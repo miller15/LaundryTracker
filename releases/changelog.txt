@@ -1,3 +1,4 @@
 5.0.0 Implements feature to merge two clients together.
 5.0.1 Fixes issue where adding a new client wouldn't immediately show up in the client list.
 5.0.2 Fixes issue where not all fields reset to default values when adding a new client.
+5.1.2 Adds button so you can clear all eligibility checks when adding a client.
