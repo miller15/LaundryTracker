@@ -286,9 +286,14 @@ public class eViewEditClientWindow extends JFrame{
 		JButton btnSubmitChanges = new JButton("Submit Changes");
 		btnSubmitChanges.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				boolean proceed = validateFields();
+				boolean proceed = validateFields(txtFname.getText(), txtLname.getText());
 				if(proceed) {
-					update_client(client_id);
+					update_client(client_id, txtFname.getText(), txtLname.getText(), txtPhone.getText(), 
+							chkMonday.isSelected(), chkTuesday.isSelected(), chkWednesday.isSelected(),
+							chkThursday.isSelected(), chkFriday.isSelected(), chkSaturday.isSelected(),
+							chkSunday.isSelected(), chkEligibleToday.isSelected(), chkLoadOutstanding.isSelected(),
+							txtNotesClient.getText()
+					);
 					populate_window(client_id);
 					cMainDashboardWindow.update_table();
 					cMainDashboardWindow.update_clients_table();
@@ -332,11 +337,8 @@ public class eViewEditClientWindow extends JFrame{
 	}
 	
 	
-	private boolean validateFields(){
+	public static boolean validateFields(String fName, String lName){
 		boolean valid = true;
-		String fName = txtFname.getText();
-		String lName = txtLname.getText();
-
 		if(fName.length() > 20){
 			debug.show_error("First Name", "First name too long");
 			valid = false;
@@ -357,26 +359,10 @@ public class eViewEditClientWindow extends JFrame{
 		return valid;
 	}
 
-	
-	public static void update_client(int client_id) {
+	public static boolean update_client(int client_id, String fName, String lName, String phone_number,
+			boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday, boolean today, boolean outstanding,
+			String notes) {
 		boolean success;
-		String fName = txtFname.getText();
-		System.out.println("fName::" + fName);
-		String lName = txtLname.getText();
-		System.out.println("lName::" + lName);
-		String phone_number = txtPhone.getText();
-		boolean monday = chkMonday.isSelected();
-		boolean tuesday = chkTuesday.isSelected();
-		boolean wednesday = chkWednesday.isSelected();
-		boolean thursday = chkThursday.isSelected();
-		boolean friday = chkFriday.isSelected();
-		boolean saturday = chkSaturday.isSelected();
-		boolean sunday = chkSunday.isSelected();
-		boolean eligible_today = chkEligibleToday.isSelected();
-		boolean load_outstanding = chkLoadOutstanding.isSelected();
-		String notes = txtNotesClient.getText();
-		System.out.println("NOTES:" + notes);
-
 		Map<String, Boolean> eligibility = new HashMap<String, Boolean>() ;
 		eligibility.put("monday", monday);
 		eligibility.put("tuesday", tuesday);
@@ -385,8 +371,8 @@ public class eViewEditClientWindow extends JFrame{
 		eligibility.put("friday", friday);
 		eligibility.put("saturday", saturday);
 		eligibility.put("sunday", sunday);
-		eligibility.put("today", eligible_today);
-		eligibility.put("load_outstanding", load_outstanding);
+		eligibility.put("today", today);
+		eligibility.put("load_outstanding", outstanding);
 
 		if(notes.isEmpty()) {
 			notes = null;
@@ -398,6 +384,7 @@ public class eViewEditClientWindow extends JFrame{
 		} else {
 			JOptionPane.showConfirmDialog(null, "Client " + fName + " " + lName + " could not be updated.", "Failure", -1);
 		}
+		return success;
 	}
 	
 	public static void update_eligible_today_flag(int client_id) {
