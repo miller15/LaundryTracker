@@ -1,2 +1,3 @@
 4.1.0 Implements feature to merge two clients together.
 4.1.1 Fixes issue where adding a new client wouldn't immediately show up in the client list.
+4.1.2 Fixes issue where not all fields reset to default values when adding a new client.

@@ -811,15 +811,26 @@ public class cMainDashboardWindow extends JFrame {
 					success = zDatabaseHandlerBackend.addClient(fName, lName, phone_number, eligibility);
 				}
 				if(success){
-					txtFname.setText("");
-					txtLname.setText("");
-					ftfPhone.setText("");
 					JOptionPane.showConfirmDialog(null, "Client " + fName + " " + lName + " added successfully.", "Success", -1);
-					//UPDATE THE TABLE HERE
+					reset_client_fields();
 					create_clients_table(scrollPaneClients);
 				} else {
 					JOptionPane.showConfirmDialog(null, "Client " + fName + " " + lName + " could not be added.", "Failure", -1);
 				}
+			}
+
+			private void reset_client_fields() {
+				txtFname.setText("");
+				txtLname.setText("");
+				ftfPhone.setText("");
+				chckbxMonday.setSelected(true);
+				chckbxTuesday.setSelected(true);
+				chckbxWednesday.setSelected(true);
+				chckbxThursday.setSelected(true);
+				chckbxFriday.setSelected(true);
+				chckbxSaturday.setSelected(true);
+				chckbxSunday.setSelected(true);	
+				txtNotes.setText("");
 			}
 		});
 		
@@ -1057,8 +1068,6 @@ private static void create_clients_table(JScrollPane scrollPaneClients, String l
 					int client_id_row =  (int) clientsTable.getValueAt(clientsTable.getSelectedRow(), 0);
 					//Integer.parseInt(client_id_row);
 					new eViewEditClientWindow(client_id_row);
-					//Populate the fields in the Add Client tab with the selected client
-					//populate
 					System.out.println("Client page");
 				} else if (column == 5) {
 					//Bring up the edit/view notes page
@@ -1138,8 +1147,6 @@ private static void create_laundry_table(JScrollPane scrollPane, String laundry_
 					int client_id_row =  Integer.parseInt( (String) laundryTable.getValueAt(laundryTable.getSelectedRow(), 6));
 					//Integer.parseInt(client_id_row);
 					new eViewEditClientWindow(client_id_row);
-					//Populate the fields in the Add Client tab with the selected client
-					//populate
 					System.out.println("Client page");
 				} else if (column == 5) {
 					//Bring up the edit/view notes page
