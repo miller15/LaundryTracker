@@ -181,10 +181,11 @@ public class zDatabaseHandlerBackend {
 					"notes BLOB, " +
 					"FOREIGN KEY(client_id) REFERENCES clients(id) ON DELETE CASCADE ON UPDATE CASCADE)";
 			
-			String insertClients = "INSERT INTO clients (fName, lName) VALUES ('Tim', 'Miller')";
+/*Use these if needed for testing
+ * 			String insertClients = "INSERT INTO clients (fName, lName) VALUES ('Tim', 'Miller')";
 			String insertUsers = "INSERT INTO users (userName, pWordSaltHash, email, fName, lName, salt) VALUES ('km', 'km', 'km@km', 'kim', 'last', 'salt')";
 			String insertLaundryLoads = "INSERT INTO laundry_loads (client_id, drop_off_signature) VALUES (1,'km'), (1,'km')";
-			
+*/			
 			String createClientsArchive = "CREATE TABLE IF NOT EXISTS clients_archive(" +
 					"id INT PRIMARY KEY AUTO_INCREMENT, " + 
 					"fName varChar(20) NOT NULL, " +
@@ -210,15 +211,17 @@ public class zDatabaseHandlerBackend {
 					+ "load_complete_sig varChar(15) COMMENT 'This is the username of the person who marked the load as completed (aka ready for pickup).', "
 					+ "pick_up datetime, "
 					+ "pick_up_sig varChar(15) COMMENT 'This is the username of the person who handed the laundry to the client.', "
-					+ "notes BLOB, "
+					+ "notes BLOB)";
+/*					+ "notes BLOB, "
 					+ "FOREIGN KEY(client_id) REFERENCES clients_archive(id) ON DELETE CASCADE ON UPDATE CASCADE)";
-					
+*/					
 /*			stmtCreateT.executeUpdate("DROP TABLE IF EXISTS users");
 			System.out.println("Successfully dropped the users table.");
 			stmtCreateT.executeUpdate("DROP TABLE IF EXISTS laundry_loads");
 			System.out.println("Successfully dropped the laundry_loads table.");
 			stmtCreateT.executeUpdate("DROP TABLE IF EXISTS clients");
 			System.out.println("Successfully dropped the clients table.");
+			
 			stmtCreateT.executeUpdate("DROP TABLE IF EXISTS laundry_loads_archive");
 			System.out.println("Successfully dropped the laundry_loads_archive table.");
 			stmtCreateT.executeUpdate("DROP TABLE IF EXISTS clients_archive");

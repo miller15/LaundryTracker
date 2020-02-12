@@ -391,8 +391,43 @@ public class eViewEditClientWindow extends JFrame{
 		String updateEligibleToday = "UPDATE clients SET eligible_today = ";
 		String selectClientLoads = "SELECT * FROM laundry_loads WHERE client_id = " + client_id;
 		ResultSet clientLoads = zDatabaseHandlerBackend.select(selectClientLoads);
+		System.out.println("ABOUT TO TRY CATCH");
 		try {
+			System.out.println("TRYING");
+			System.out.println("ClientLoads: " + clientLoads);
+			
+			if (!clientLoads.next()) {                            //if rs.next() returns false
+                //then there are no rows.
+				System.out.println("No records found");
+				System.out.println("Essentially catching");
+				//Client didn't even have any laundry in the system.
+				updateEligibleToday += true + " WHERE id = " + client_id;
+
+			}
+			else {
+				do {
+					// Get data from the current row and use it
+					// Figure out if any of the existing laundry for this client was done today.
+					System.out.println("Getting laundry for this client");
+					String date = clientLoads.getString("drop_off");
+					LocalDateTime dbDateTime = LocalDateTime.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+					DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+					Date currentDate = new Date();
+					String currentDay = dateFormat.format(currentDate);
+					String dbDay = dateFormat.format(dbDateTime);
+					if (dbDay.equals(currentDay)) {
+						System.out.println("Getting a false label");
+						updateEligibleToday += false + " WHERE id = " + client_id;
+					} else {
+						System.out.println("Getting a true label");
+						updateEligibleToday += true + " WHERE id = " + client_id;
+					}
+
+				} while (clientLoads.next());
+			}
+			
 			while(clientLoads.next()) {
+/*				System.out.println("Getting laundry for this client");
 				String date = clientLoads.getString("drop_off");
 				LocalDateTime dbDateTime = LocalDateTime.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -400,15 +435,19 @@ public class eViewEditClientWindow extends JFrame{
 				String currentDay = dateFormat.format(currentDate);
 				String dbDay = dateFormat.format(dbDateTime);
 				if (dbDay.equals(currentDay)) {
+					System.out.println("Getting a false label");
 					updateEligibleToday += false + " WHERE id = " + client_id;
 				} else {
+					System.out.println("Getting a true label");
 					updateEligibleToday += true + " WHERE id = " + client_id;
 				}
-			}
+*/			}
 		} catch (Exception e) {
+			System.out.println("CATCHING");
 			//Client didn't even have any laundry in the system.
 			updateEligibleToday += true + " WHERE id = " + client_id;
 		}
+		System.out.println("LINE 412 UPDATEELIGIBLETODAY: " + updateEligibleToday);
 		zDatabaseHandlerBackend.update(updateEligibleToday);
 	}
 

@@ -36,7 +36,10 @@ public class bWelcomeScreenWindow {
 		/*
 		 * If this is the first time showing the main page, then initialize the database.
 		 * Otherwise, it has already been created so we don't need to do this.
+		 * This will only work if the firstTime variable is stored in cpu memory.
+		 * It looks like this doesn't matter too much - it just tries to create the tables and it doesn't override them.
 		 */
+		System.out.println("FIRST TIME = " + firstTime);
 		if(firstTime = true){
 			System.out.println("initializing database");
 			zDatabaseHandlerBackend.initialize_db();

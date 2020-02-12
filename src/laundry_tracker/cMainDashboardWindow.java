@@ -20,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +42,8 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableModel;
@@ -71,7 +74,7 @@ public class cMainDashboardWindow extends JFrame {
 	//private static dViewAllClientsWindow tableContentPane;
 	private static JTable laundryTable;
 	private static JTable laundryTableArchive;
-	private static JTable laundryTbl;
+	//private static JTable laundryTbl;
 	private JTextField txtFnameFilter;
 	private JTextField txtLnameFilter;
 	private static JScrollPane scrollPane;
@@ -961,7 +964,24 @@ public class cMainDashboardWindow extends JFrame {
 		gbl_archivePanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE};
 		archivePanel.setLayout(gbl_archivePanel);
 		
+		// Register a change listener
+		tabbedPane.addChangeListener(new ChangeListener() 
+		{
+			// This method is called whenever the selected tab changes
+			public void stateChanged(ChangeEvent evt) 
+			{
+				JTabbedPane TabbedPane = (JTabbedPane)evt.getSource();
+				// Get current tab
+				int tab = TabbedPane.getSelectedIndex();
+				if(tab == 3) {
+					create_laundry_archive_table(archiveScrollPane);
+				}
+			}
+		});
+
+		
 		JButton button = new JButton("Drop off New Load");
+		button.setEnabled(false);
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 			}
@@ -981,9 +1001,10 @@ public class cMainDashboardWindow extends JFrame {
 		gbc_archiveSP.gridy = 0;
 		archivePanel.add(archiveScrollPane, gbc_archiveSP);
 		
-		create_laundry_archive_table(archiveScrollPane);
-		
+/*		create_laundry_archive_table(archiveScrollPane);
+*/		
 		JButton button_1 = new JButton("Mark Load Complete");
+		button_1.setEnabled(false);
 		GridBagConstraints gbc_button_1 = new GridBagConstraints();
 		gbc_button_1.gridwidth = 3;
 		gbc_button_1.insets = new Insets(0, 0, 5, 5);
@@ -992,6 +1013,7 @@ public class cMainDashboardWindow extends JFrame {
 		archivePanel.add(button_1, gbc_button_1);
 		
 		JButton button_2 = new JButton("Mark Picked Up");
+		button_2.setEnabled(false);
 		GridBagConstraints gbc_button_2 = new GridBagConstraints();
 		gbc_button_2.gridwidth = 3;
 		gbc_button_2.insets = new Insets(0, 0, 5, 5);
@@ -1000,6 +1022,7 @@ public class cMainDashboardWindow extends JFrame {
 		archivePanel.add(button_2, gbc_button_2);
 		
 		JButton button_3 = new JButton("Clear Marked Complete");
+		button_3.setEnabled(false);
 		GridBagConstraints gbc_button_3 = new GridBagConstraints();
 		gbc_button_3.insets = new Insets(0, 0, 5, 5);
 		gbc_button_3.gridx = 1;
@@ -1007,6 +1030,7 @@ public class cMainDashboardWindow extends JFrame {
 		archivePanel.add(button_3, gbc_button_3);
 		
 		JButton button_4 = new JButton("Clear Pickup");
+		button_4.setEnabled(false);
 		GridBagConstraints gbc_button_4 = new GridBagConstraints();
 		gbc_button_4.insets = new Insets(0, 0, 5, 5);
 		gbc_button_4.gridx = 1;
@@ -1186,12 +1210,16 @@ public class cMainDashboardWindow extends JFrame {
 		gbc_button_7.gridy = 15;
 		archivePanel.add(button_7, gbc_button_7);
 		
-		JButton button_8 = new JButton("Delete Laundry Entry");
-		GridBagConstraints gbc_button_8 = new GridBagConstraints();
-		gbc_button_8.insets = new Insets(0, 0, 5, 5);
-		gbc_button_8.gridx = 1;
-		gbc_button_8.gridy = 22;
-		archivePanel.add(button_8, gbc_button_8);
+		JButton archive_delete_btn = new JButton("Delete Laundry Entry");
+		archive_delete_btn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		GridBagConstraints gbc_archive_delete_btn = new GridBagConstraints();
+		gbc_archive_delete_btn.insets = new Insets(0, 0, 5, 5);
+		gbc_archive_delete_btn.gridx = 1;
+		gbc_archive_delete_btn.gridy = 22;
+		archivePanel.add(archive_delete_btn, gbc_archive_delete_btn);
 		
 		archiveTBL = new JTable((TableModel) null);
 		archiveTBL.setUpdateSelectionOnSort(true);
@@ -1211,28 +1239,35 @@ public class cMainDashboardWindow extends JFrame {
 	}
 		
 protected void archive_delete_press(String button) {
+	System.out.println("Getting table: " + laundryTable);
+	System.out.println(laundryTable.getSelectedRows());
 	int[] rows = laundryTable.getSelectedRows();
-	int[] laundry_ids = new int[rows.length];
-	String[] client_ids = new String[rows.length];
+    Set<Integer> laundry_id_set = new HashSet<Integer>(); 
+    Set<String> client_id_set = new HashSet<String>();
+	//int[] laundry_ids = new int[rows.length];
+	//String[] client_ids = new String[rows.length];
 	
 	if ( !(rows.length == 0) ) {
 		for (int i = 0; i < rows.length; i++) {
-			laundry_ids[i] = (int) laundryTable.getValueAt(laundryTable.getSelectedRow(), 0);
-			client_ids[i] = (String) laundryTable.getValueAt(laundryTable.getSelectedRow(), 6);
+			laundry_id_set.add((int) laundryTable.getValueAt(laundryTable.getSelectedRow(), 0));
+			client_id_set.add((String) laundryTable.getValueAt(laundryTable.getSelectedRow(), 6));
 		}
+		System.out.println("Laundry_ids after creation: " + laundry_id_set);
 		if(button.equalsIgnoreCase("archive")) {
 			//archive it before deleting!!
-			archive_laundry_db(laundry_ids);
+			archive_laundry_db(laundry_id_set);
 		}
-		delete_laundry(laundry_ids, client_ids);
+		delete_laundry(laundry_id_set, client_id_set, true);
 	} else {
 		show_error("Make a Selection", "Select at least 1 laundry entry to " + button + ".");
 	}
 
 }
 	
-protected void archive_laundry_db(int[] laundry_ids) {
-	String insert_archive_laundry = "INSERT INTO laundry_archive (SELECT * FROM laundry_loads WHERE id IN " + laundry_ids;
+protected void archive_laundry_db(Set<Integer> laundry_id_set) {	
+	String insert_archive_laundry = "INSERT INTO laundry_loads_archive SELECT * FROM laundry_loads WHERE id IN " + laundry_id_set;
+	insert_archive_laundry = insert_archive_laundry.replaceAll("\\[", "(").replaceAll("\\]",")");	
+	System.out.println("ARCHIVE QUERY: " + insert_archive_laundry);
 	zDatabaseHandlerBackend.update(insert_archive_laundry);
 	cMainDashboardWindow.update_table();		
 }
@@ -1338,15 +1373,22 @@ protected void clear_laundry(String editType, int laundry_id, String client_id, 
 	}
 }
 
-protected void delete_laundry(int[] laundry_ids, String[] client_ids) {
-	int response = debug.show_warning("Delete Laundry Load", "Are you sure you want to delete the selected laundry? This action cannot be undone!");
-	if (response == 0) {
+protected void delete_laundry(Set<Integer> laundry_id_set, Set<String> client_id_set, boolean archive) {
+	int response = 1;
+	if (!archive) {
+		response = debug.show_warning("Delete Laundry Load", "Are you sure you want to delete the selected laundry? This action cannot be undone!");
+	}
+	if (archive || response == 0) {
 		//Yes, delete it
-		String delete_laundry = "DELETE FROM laundry_loads WHERE id IN " + laundry_ids;
+		String delete_laundry = "DELETE FROM laundry_loads WHERE id IN (" + laundry_id_set + ")";
+		delete_laundry = delete_laundry.replaceAll("\\[", "").replaceAll("\\]","");	
+		System.out.println("laundry_ids: " + delete_laundry);
 		zDatabaseHandlerBackend.update(delete_laundry);
-		for (int i = 0; i < client_ids.length; i++) {
-			eViewEditClientWindow.update_load_outstanding_flag(client_ids[i]);
-			eViewEditClientWindow.update_eligible_today_flag(Integer.parseInt(client_ids[i]));			
+		//for (int i = 0; i < client_id_set.size(); i++) {
+		for (String client_id: client_id_set) {
+			eViewEditClientWindow.update_load_outstanding_flag(client_id);
+			System.out.println("CLIENT_ID: " + client_id);
+			eViewEditClientWindow.update_eligible_today_flag(Integer.parseInt(client_id));			
 		}
 		cMainDashboardWindow.update_table();
 	}
@@ -1442,26 +1484,26 @@ private static void create_laundry_table(JScrollPane scrollPane, String laundry_
 	if(!archive) {
 		//Build the active laundry table.
 		try {
-			laundryTbl = new JTable(buildTableModel(laundry_query));
+			laundryTable = new JTable(buildTableModel(laundry_query));
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	} else {
 		//Build the laundry table from the archives database.
 		try {
-			laundryTbl = new JTable(buildTableModel(laundry_query));
+			laundryTableArchive = new JTable(buildTableModel(laundry_query));
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
-	laundryTbl.setBackground(Color.WHITE);
-	laundryTbl.setColumnSelectionAllowed(false);
-	laundryTbl.setRowSelectionAllowed(true);
-	laundryTbl.setFillsViewportHeight(true);
-	laundryTbl.setBorder(new MatteBorder(1, 2, 2, 2, (Color) new Color(0, 0, 0)));
-	laundryTbl.setAutoCreateRowSorter(true);
-	laundryTbl.setUpdateSelectionOnSort(true);
-	laundryTbl.addMouseListener(new MouseAdapter() {
+	laundryTable.setBackground(Color.WHITE);
+	laundryTable.setColumnSelectionAllowed(false);
+	laundryTable.setRowSelectionAllowed(true);
+	laundryTable.setFillsViewportHeight(true);
+	laundryTable.setBorder(new MatteBorder(1, 2, 2, 2, (Color) new Color(0, 0, 0)));
+	laundryTable.setAutoCreateRowSorter(true);
+	laundryTable.setUpdateSelectionOnSort(true);
+	laundryTable.addMouseListener(new MouseAdapter() {
 		public void mousePressed(MouseEvent mouseEvent) {
 			JTable table = (JTable) mouseEvent.getSource();
 			Point point = mouseEvent.getPoint();
@@ -1472,13 +1514,13 @@ private static void create_laundry_table(JScrollPane scrollPane, String laundry_
 					//Bring up the client info page
 					//Make the client info page a separate window.
 					/*tabbedPane.setSelectedComponent(panelAddClient);*/
-					int client_id_row =  Integer.parseInt( (String) laundryTbl.getValueAt(laundryTbl.getSelectedRow(), 6));
+					int client_id_row =  Integer.parseInt( (String) laundryTable.getValueAt(laundryTable.getSelectedRow(), 6));
 					//Integer.parseInt(client_id_row);
 					new eViewEditClientWindow(client_id_row);
 					System.out.println("Client page");
 				} else if (column == 5) {
 					//Bring up the edit/view notes page
-					int laundry_id = (int) laundryTbl.getValueAt(laundryTbl.getSelectedRow(), 0);
+					int laundry_id = (int) laundryTable.getValueAt(laundryTable.getSelectedRow(), 0);
 					String[] options = {"Save and Close", "Close"};
 					debug.show_note_prompt("laundry_loads", String.valueOf(laundry_id), "Laundry Note", "<html>These are all the notes about the current load of laundry.<br>You can make changes and/or additions.<html>", options, true);
 					//Refresh the table
@@ -1491,7 +1533,7 @@ private static void create_laundry_table(JScrollPane scrollPane, String laundry_
 		}
 	});
 
-	scrollPane.setViewportView(laundryTbl);
+	scrollPane.setViewportView(laundryTable);
 }
 
 private static void create_laundry_table(JScrollPane scrollPane) {
