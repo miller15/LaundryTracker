@@ -1241,7 +1241,7 @@ protected String generate_filter_query(String[] filters) {
 	List full_filters = new ArrayList();
 	String laundry_query = 
 		  "SELECT ll.id, "
-		+ "CONCAT(fName, ' ', lName) AS Name, "
+		+ "CONCAT(lName, ', ', fName) AS Name, "
 		+ "CONCAT(drop_off) AS 'Dropped Off On', "
 		+ "CONCAT(load_complete) AS 'Completed On', "
 		+ "CONCAT(pick_up) AS 'Picked Up On', "
@@ -1265,6 +1265,7 @@ protected String generate_filter_query(String[] filters) {
 			laundry_query += " AND ";
 		}
 	}
+	laundry_query += " ORDER BY lName, fName"
 	debug.print("Filter Query: " + laundry_query);
 		return laundry_query;
 	}

@@ -462,8 +462,8 @@ public class zDatabaseHandlerBackend {
 		java.sql.Date sqlDate = null;
 		try {
 			sqlDate = new java.sql.Date(dropOffDate.getTime());
-			String insertLaundryLoad = "INSERT INTO laundry_loads(client_id, drop_off, drop_off_signature, notes) VALUES ('"
-					+ client_id + "', '" + sqlDate + "', '" + drop_off_sig + "', '" + notes + "')";
+			String insertLaundryLoad = "INSERT INTO laundry_loads(client_id, drop_off_signature, notes) VALUES ('"
+			        + client_id + "', '" + drop_off_sig + "', '" + notes + "')";
 			System.out.println("************************");
 			System.out.println(insertLaundryLoad);
 			Connection dbConn = connect_db();
@@ -491,8 +491,8 @@ public class zDatabaseHandlerBackend {
 		java.sql.Date sqlDate = null;
 		try {
 			sqlDate = new java.sql.Date(dropOffDate.getTime());
-			String insertLaundryLoad = "INSERT INTO laundry_loads(client_id, drop_off, drop_off_signature) VALUES ('"
-					+ client_id + "', '" + sqlDate + "', '" + drop_off_sig + "')";
+			String insertLaundryLoad = "INSERT INTO laundry_loads(client_id, drop_off_signature) VALUES ('"
+			        + client_id + "', '" + drop_off_sig + "')";
 			Connection dbConn = connect_db();
 			Statement insert = null;
 			try {
@@ -616,7 +616,7 @@ public class zDatabaseHandlerBackend {
 	}
 	
 	public static ResultSet getClientNames() {
-		String clientNamesQuery = "SELECT concat(fName, ' ', lName) AS fullName FROM clients;";
+		String clientNamesQuery = "SELECT concat(fName, ' ', lName) AS fullName FROM clients ORDER BY fName, Name;";
 		ResultSet clientNames = select(clientNamesQuery);
 		return clientNames;
 	}
