@@ -188,12 +188,16 @@ public class cMainDashboardWindow extends JFrame {
 				try {
 					//Select highlighted id from the table
 					int laundry_id = (int) laundryTable.getValueAt(laundryTable.getSelectedRow(), 0);
+					System.out.println(laundry_id);
 					String client_id = (String) laundryTable.getValueAt(laundryTable.getSelectedRow(), 6);
 					edit_laundry("markComplete", laundry_id, client_id, bWelcomeScreenWindow.getCurrUser());
 					//Refresh the table
 						//Don't update the client's eligible_today or outstanding load value
 					cMainDashboardWindow.update_table();
-				} catch (java.lang.ArrayIndexOutOfBoundsException e) {
+				} catch (java.lang.NullPointerException e) {
+
+//				} catch (java.lang.ArrayIndexOutOfBoundsException e) {
+					e.printStackTrace();
 					debug.show_error("No Selection", "Please select a row from the table!");
 				}
 			}
