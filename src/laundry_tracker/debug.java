@@ -31,6 +31,10 @@ public class debug {
 	public static void print(String printStr) {
 		System.out.println(printStr);
 	}
+	public static void printNum(int printNum) {
+		String printStr = String.valueOf(printNum);
+		System.out.println(printStr);
+	}
 	
 	public static void show_error(String title, Object message)
 	{

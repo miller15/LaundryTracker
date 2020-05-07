@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry exported="true" kind="lib" path="C:/Users/Tim Miller/Documents/eclipse/LambCenter/jcalendar-1.4/lib/jcalendar-1.4.jar"></classpathentry>
-	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-	<classpathentry kind="lib" path="C:/Users/Tim Miller/Documents/eclipse/LambCenter/LaundryTracker/miglayout-3.5.5-swing-java14.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Tim Miller/Documents/eclipse/LambCenter/LaundryTracker/javamail1_4_7/javamail-1.4.7/mail.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files (x86)/MySQL/Connector J 8.0/mysql-connector-java-8.0.9-rc-bin.jar"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/MySQL/Connector J 8.0/mysql-connector-java-8.0.19.jar"/>
+	<classpathentry kind="lib" path="//server1/Profiles/Music2/Downloads/miglayout-3.5.5-swing-java14.jar"/>
+	<classpathentry kind="lib" path="//server1/Profiles/Music2/Downloads/javax.mail.jar"/>
+	<classpathentry kind="lib" path="//server1/Profiles/Music2/Downloads/jcalendar-1.4/lib/jcalendar-1.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
