@@ -194,7 +194,10 @@ public class cMainDashboardWindow extends JFrame {
 					//Refresh the table
 						//Don't update the client's eligible_today or outstanding load value
 					cMainDashboardWindow.update_table();
-				} catch (java.lang.ArrayIndexOutOfBoundsException e) {
+				} catch (java.lang.NullPointerException e) {
+
+//				} catch (java.lang.ArrayIndexOutOfBoundsException e) {
+					e.printStackTrace();
 					debug.show_error("No Selection", "Please select a row from the table!");
 				}
 			}
