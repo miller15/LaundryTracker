@@ -6,9 +6,9 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Program Files (x86)/MySQL/Connector J 8.0/mysql-connector-java-8.0.19.jar"/>
-	<classpathentry kind="lib" path="//server1/Profiles/Music2/Downloads/miglayout-3.5.5-swing-java14.jar"/>
-	<classpathentry kind="lib" path="//server1/Profiles/Music2/Downloads/javax.mail.jar"/>
-	<classpathentry kind="lib" path="//server1/Profiles/Music2/Downloads/jcalendar-1.4/lib/jcalendar-1.4.jar"/>
+	<classpathentry kind="lib" path="dependencies/jcalendar-1.4.jar"/>
+	<classpathentry kind="lib" path="dependencies/mail.jar"/>
+	<classpathentry kind="lib" path="dependencies/miglayout-3.5.5-swing-java14.jar"/>
+	<classpathentry kind="lib" path="dependencies/mysql-connector-java-8.0.9-rc-bin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
