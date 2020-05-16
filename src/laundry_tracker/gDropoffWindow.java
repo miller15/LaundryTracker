@@ -129,9 +129,10 @@ public class gDropoffWindow extends JFrame {
 				//Add the laundry load to the db
 				String name = (String) jComboBoxName.getSelectedItem();
 				System.out.println("NAME ATTEMPTING TO BE DROPPED OFF: " + name);
-				String[] fullName = name.split(" ");
-				String fName = fullName[0];
-				String lName = fullName[1];
+				String[] fullName = name.split("[, ]+");
+				String lName = fullName[0].trim();
+				String fName = fullName[1].trim();
+				debug.print("-"+ lName + "-" + fName + "-");
 				java.util.Date dropOffDate = dateChooser.getDate();
 				System.out.println("DROP OFF::" + dropOffDate);
 				String notes = textAreaNotes.getText();
@@ -164,7 +165,10 @@ public class gDropoffWindow extends JFrame {
 					} catch (SQLException e) {
 						//No client existed
 						moveon = false;
-						int decision = debug.show_question("No Client Exists", "There is no client with that name currently in the database. Would you like to add the client with the default eligibility?");
+						int decision = debug.show_question("No Client Exists", "Client not found.\n"
+								+ " PLEASE MAKE SURE THE CLIENT IS NOT IN THE LIST BEFORE ADDING!\n"
+								+ " Enter LASTNAME, FIRSTNAME, and click on the appropriate name.\n\n"
+								+ " Would you like to add the client with the default eligibility?");
 						if(decision == 0) {
 							//user wants to add the client
 							if(zDatabaseHandlerBackend.addClient(fName, lName)) {
@@ -206,7 +210,7 @@ public class gDropoffWindow extends JFrame {
 								} else if (existence.getBoolean("load_outstanding")) {
 									moveon = false;
 									String[] options =  {"Deny Additional Load","Override and Accept Load"};
-									int choice = JOptionPane.showOptionDialog(null, fName + " " /*+ lName*/ + " has laundry that is yet to be complete or that hasn't been picked up yet. You can override this warning and accept his/her laundry, but it is recommended you check the Laundry List and have the client pickup his/her laundry before accepting another load.", "Double Dipping!", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+									int choice = JOptionPane.showOptionDialog(null, fName + " " /*+ lName*/ + "has laundry that is yet to be complete or that hasn't been picked up yet. You can override this warning and accept his/her laundry, but it is recommended you check the Laundry List and have the client pickup his/her laundry before accepting another load.", "Double Dipping!", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
 									if (choice == 0) {
 										moveon = false;
 									} else {

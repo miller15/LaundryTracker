@@ -175,7 +175,7 @@ public class cMainDashboardWindow extends JFrame {
 				}
 			}
 		});
-*/		
+*/
 		JButton btnMarkLoadComplete = new JButton("Mark Load Complete");
 		GridBagConstraints gbc_btnMarkLoadComplete = new GridBagConstraints();
 		gbc_btnMarkLoadComplete.gridwidth = 3;
@@ -187,9 +187,9 @@ public class cMainDashboardWindow extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
 					//Select highlighted id from the table
-					int laundry_id = (int) laundryTable.getValueAt(laundryTable.getSelectedRow(), 0);
-					System.out.println(laundry_id);
-					String client_id = (String) laundryTable.getValueAt(laundryTable.getSelectedRow(), 6);
+					int rownum = (int) laundryTbl.getSelectedRow();
+					int laundry_id = (int) laundryTbl.getValueAt(laundryTbl.getSelectedRow(), 0);
+					int client_id = (int) laundryTbl.getValueAt(laundryTbl.getSelectedRow(), 6);
 					edit_laundry("markComplete", laundry_id, client_id, bWelcomeScreenWindow.getCurrUser());
 					//Refresh the table
 						//Don't update the client's eligible_today or outstanding load value
@@ -215,8 +215,8 @@ public class cMainDashboardWindow extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
 					//Select highlighted id from the table
-					int laundry_id = (int) laundryTable.getValueAt(laundryTable.getSelectedRow(), 0);
-					String client_id = (String) laundryTable.getValueAt(laundryTable.getSelectedRow(), 6);
+					int laundry_id = (int) laundryTbl.getValueAt(laundryTbl.getSelectedRow(), 0);
+					int client_id = (int) laundryTbl.getValueAt(laundryTbl.getSelectedRow(), 6);
 					edit_laundry("pickup", laundry_id, client_id, bWelcomeScreenWindow.getCurrUser());
 					//Refresh the table
 						//Don't update the client's eligible_today or outstanding load value
@@ -230,9 +230,16 @@ public class cMainDashboardWindow extends JFrame {
 		JButton btnClearMarkedComplete = new JButton("Clear Marked Complete");
 		btnClearMarkedComplete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				int laundry_id = (int) laundryTable.getValueAt(laundryTable.getSelectedRow(), 0);
-				String client_id = (String) laundryTable.getValueAt(laundryTable.getSelectedRow(), 6);
-				clear_laundry("markedComplete", laundry_id, client_id, bWelcomeScreenWindow.getCurrUser());
+				debug.printNum(laundryTbl.getSelectedRow());
+				int laundry_id = (int) laundryTbl.getValueAt(laundryTbl.getSelectedRow(), 0);
+				int client_id = (int) laundryTbl.getValueAt(laundryTbl.getSelectedRow(), 6);
+				String s_client_id = String.valueOf(client_id);
+				String s_laundry_id = String.valueOf(laundry_id);
+				debug.print("STUFF:");
+				debug.printNum(client_id);
+				debug.printNum(laundry_id);
+				clear_laundry("pickup", laundry_id, client_id, bWelcomeScreenWindow.getCurrUser());
+				clear_laundry("markComplete", laundry_id, client_id, bWelcomeScreenWindow.getCurrUser());
 			}
 		});
 		GridBagConstraints gbc_btnClearMarkedComplete = new GridBagConstraints();
@@ -242,6 +249,19 @@ public class cMainDashboardWindow extends JFrame {
 		panelLaundryList.add(btnClearMarkedComplete, gbc_btnClearMarkedComplete);
 		
 		JButton btnClearPickup = new JButton("Clear Pickup");
+		btnClearPickup.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				debug.printNum(laundryTbl.getSelectedRow());
+				int laundry_id = (int) laundryTbl.getValueAt(laundryTbl.getSelectedRow(), 0);
+				int client_id = (int) laundryTbl.getValueAt(laundryTbl.getSelectedRow(), 6);
+				String s_client_id = String.valueOf(client_id);
+				String s_laundry_id = String.valueOf(laundry_id);
+				debug.print("STUFF:");
+				debug.printNum(client_id);
+				debug.printNum(laundry_id);
+				clear_laundry("pickup", laundry_id, client_id, bWelcomeScreenWindow.getCurrUser());
+			}
+		});
 		GridBagConstraints gbc_btnClearPickup = new GridBagConstraints();
 		gbc_btnClearPickup.insets = new Insets(0, 0, 5, 5);
 		gbc_btnClearPickup.gridx = 1;
@@ -250,7 +270,7 @@ public class cMainDashboardWindow extends JFrame {
 
 		
 		JLabel lblFilters = new JLabel("Filters");
-		lblFilters.setFont(new Font("Tahoma", Font.BOLD, 11));
+		lblFilters.setFont(new Font("Tahoma", Font.BOLD, 18));
 		GridBagConstraints gbc_lblFilters = new GridBagConstraints();
 		gbc_lblFilters.gridwidth = 3;
 		gbc_lblFilters.insets = new Insets(0, 0, 5, 5);
@@ -289,7 +309,7 @@ public class cMainDashboardWindow extends JFrame {
 		gbc_dateChooserLatest.gridx = 1;
 		gbc_dateChooserLatest.gridy = 7;
 		panelLaundryList.add(dateChooserLatest, gbc_dateChooserLatest);
-		
+/*		
 		//Radio Buttons for the filters!
 		JLabel lblRequireCompleted = new JLabel("Require Completed");
 		GridBagConstraints gbc_lblRequireCompleted = new GridBagConstraints();
@@ -345,7 +365,7 @@ public class cMainDashboardWindow extends JFrame {
 		gbc_lblCurrentlyEligible.gridx = 0;
 		gbc_lblCurrentlyEligible.gridy = 10;
 		panelLaundryList.add(lblCurrentlyEligible, gbc_lblCurrentlyEligible);
-		
+				
 		JRadioButton rdbtnEligibleYes = new JRadioButton("Yes");
 		rdbtnEligibleYes.setActionCommand("eligibleYes");
 		GridBagConstraints gbc_rdbtnEligibleYes = new GridBagConstraints();
@@ -375,6 +395,37 @@ public class cMainDashboardWindow extends JFrame {
 	    ButtonGroup btngrpEligible = new ButtonGroup();
 	    btngrpEligible.add(rdbtnEligibleYes);
 	    btngrpEligible.add(rdbtnEligibleNo);
+*/
+
+		JRadioButton rdbtnInProgress = new JRadioButton("In progress");
+		rdbtnInProgress.setActionCommand("loadsInProgress");
+		GridBagConstraints gbc_rdbtnInProgress = new GridBagConstraints();
+		gbc_rdbtnInProgress.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnInProgress.gridx = 1;
+		gbc_rdbtnInProgress.gridy = 8;
+		panelLaundryList.add(rdbtnInProgress, gbc_rdbtnInProgress);
+
+		JRadioButton rdbtnNotPickedUp = new JRadioButton("In progress or ready for pickup");
+		rdbtnNotPickedUp.setActionCommand("loadsNotPickedUp");
+		rdbtnNotPickedUp.setSelected(true);
+		GridBagConstraints gbc_rdbtnNotPickedUp = new GridBagConstraints();
+		gbc_rdbtnNotPickedUp.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnNotPickedUp.gridx = 1;
+		gbc_rdbtnNotPickedUp.gridy = 9;
+		panelLaundryList.add(rdbtnNotPickedUp, gbc_rdbtnNotPickedUp);
+
+		JRadioButton rdbtnAllLoads = new JRadioButton("Complete load history");
+		rdbtnAllLoads.setActionCommand("loadsAll");
+		GridBagConstraints gbc_rdbtnAllLoads = new GridBagConstraints();
+		gbc_rdbtnAllLoads.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnAllLoads.gridx = 1;
+		gbc_rdbtnAllLoads.gridy = 10;
+		panelLaundryList.add(rdbtnAllLoads, gbc_rdbtnAllLoads);
+
+		ButtonGroup btngrpLoadFilter = new ButtonGroup();
+		btngrpLoadFilter.add(rdbtnInProgress);
+		btngrpLoadFilter.add(rdbtnNotPickedUp);
+		btngrpLoadFilter.add(rdbtnAllLoads);
 		
 		JLabel lblFirstNameFilter = new JLabel("First Name");
 		GridBagConstraints gbc_lblFirstNameFilter = new GridBagConstraints();
@@ -406,10 +457,12 @@ public class cMainDashboardWindow extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				String earliest_date = "";
 				String latest_date = "";
-				String single_date = "";
-				String completed = "";
-				String pickedup = "";
-				String eligible = "";
+//				String single_date = "";
+				String statusFilter = "";
+				String statusFilterValue = "";
+//				String completed = "";
+//				String pickedup = "";
+//				String eligible = "";
 				String fName = "";
 				String lName = "";
 				boolean at_least_one = false;
@@ -433,11 +486,30 @@ public class cMainDashboardWindow extends JFrame {
 					single_date = "drop_off = '" + df.format(early_date) + "'";
 				}
 */				
+
+				try {
+					if (btngrpLoadFilter.getSelection().isSelected()) {
+						statusFilterValue = btngrpLoadFilter.getSelection().getActionCommand();
+						if (statusFilterValue.equals("loadsInProgress")) {
+							statusFilter = " load_complete IS NULL ";
+						} else if (statusFilterValue.equals("loadsNotPickedUp")) {
+							statusFilter = " pick_up IS NULL ";
+						} else {
+							statusFilter = " drop_off IS NOT NULL ";
+						}
+						debug.print("MY FILTER IS " + statusFilter);
+					}
+				} catch (java.lang.NullPointerException e) {
+					debug.print("Caught the error statusFilter/Value: " + statusFilter + " " + statusFilterValue);
+				}
+
+
+/*
 				try {
 					if (btngrpCompleted.getSelection().isSelected()) {
 						completed = btngrpCompleted.getSelection().getActionCommand();
-/*						System.out.println("Value of completed (button model): " + completed);
-*/						if (completed.equals("completedYes")) {
+						System.out.println("Value of completed (button model): " + completed);
+						if (completed.equals("completedYes")) {
 							completed = " load_complete IS NOT NULL ";
 						} else if (completed.equals("completedNo")) {
 							completed = " load_complete IS NULL ";
@@ -479,6 +551,7 @@ public class cMainDashboardWindow extends JFrame {
 					debug.print("Caught the error Eligible");
 					//e.printStackTrace();
 				}
+*/
 				if (!txtFnameFilter.getText().isEmpty()) {
 					fName = " fName = '" + txtFnameFilter.getText() + "' ";
 					System.out.println("fName text: " + fName);
@@ -488,7 +561,7 @@ public class cMainDashboardWindow extends JFrame {
 					System.out.println("lName text: " + lName);
 				}
 				
-				String[] filters = {earliest_date, latest_date, single_date, completed, pickedup, eligible, fName, lName};
+				String[] filters = {earliest_date, latest_date, statusFilter, fName, lName};
 				//Make sure at least one of the filters is populated. Otherwise, there is nothing to filter so don't do anything.
 				//There is a separate "Clear Filters" button for getting the table back to its normal display.
 				for (int j = 0; j < filters.length; j++) {
@@ -546,7 +619,8 @@ public class cMainDashboardWindow extends JFrame {
 				dateChooserLatest.setDate(null);
 				txtFnameFilter.setText("");
 				txtLnameFilter.setText("");
-				rdbtnCompletedYes.setSelected(false);
+				
+/*				rdbtnCompletedYes.setSelected(false);
 				rdbtnCompletedNo.setSelected(false);
 				rdbtnPickedupYes.setSelected(false);
 				rdbtnPickedupNo.setSelected(false);
@@ -555,6 +629,9 @@ public class cMainDashboardWindow extends JFrame {
 				btngrpCompleted.clearSelection();
 				btngrpPickedup.clearSelection();
 				btngrpEligible.clearSelection();
+*/
+				rdbtnNotPickedUp.setSelected(true);
+
 			}
 		});
 		GridBagConstraints gbc_btnClearFilters = new GridBagConstraints();
@@ -571,7 +648,7 @@ public class cMainDashboardWindow extends JFrame {
 			}
 		});
 		
-		JButton btnArchive = new JButton("Archive Laundry");
+/*		JButton btnArchive = new JButton("Archive Laundry");
 		btnArchive.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				archive_delete_press("archive");
@@ -588,7 +665,7 @@ public class cMainDashboardWindow extends JFrame {
 		gbc_btnDeleteLaundryEntry.gridx = 1;
 		gbc_btnDeleteLaundryEntry.gridy = 22;
 		panelLaundryList.add(btnDeleteLaundryEntry, gbc_btnDeleteLaundryEntry);
-		
+*/		
 		
 		tabbedPane.add("Add Client", panelAddClient);
 		//tabbedPane.add("View Clients", panelViewAllClients);
@@ -957,7 +1034,7 @@ public class cMainDashboardWindow extends JFrame {
 		);
 		
 		JPanel archivePanel = new JPanel();
-		tabbedPane.addTab("Archive", null, archivePanel, null);
+//		tabbedPane.addTab("Archive", null, archivePanel, null);
 		GridBagLayout gbl_archivePanel = new GridBagLayout();
 		gbl_archivePanel.columnWidths = new int[]{0, 0, 80, 0, 0};
 		gbl_archivePanel.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -985,7 +1062,7 @@ public class cMainDashboardWindow extends JFrame {
 		gbc_archiveSP.gridy = 0;
 		archivePanel.add(archiveScrollPane, gbc_archiveSP);
 		
-		create_laundry_archive_table(archiveScrollPane);
+//		create_laundry_archive_table(archiveScrollPane);
 		
 		JButton button_1 = new JButton("Mark Load Complete");
 		GridBagConstraints gbc_button_1 = new GridBagConstraints();
@@ -1244,13 +1321,13 @@ protected void archive_laundry_db(int[] laundry_ids) {
 protected String generate_filter_query(String[] filters) {
 	List full_filters = new ArrayList();
 	String laundry_query = 
-		  "SELECT ll.id, "
-		+ "CONCAT(fName, ' ', lName) AS Name, "
-		+ "CONCAT(drop_off) AS 'Dropped Off On', "
-		+ "CONCAT(load_complete) AS 'Completed On', "
-		+ "CONCAT(pick_up) AS 'Picked Up On', "
-		+ "CONCAT(ll.notes) AS 'Note', "
-		+ "CONCAT(c.id) AS 'Client ID' "
+		  "SELECT ll.id AS 'Load ID', "
+		+ "CONCAT(lName, ', ', fName) AS Name, "
+		+ "drop_off AS 'Dropped Off On', "
+		+ "load_complete AS 'Completed On', "
+		+ "pick_up AS 'Picked Up On', "
+		+ "ll.notes AS 'Note', "
+		+ "c.id AS 'Client ID' "
 		+ "FROM laundry_loads ll "
 		+ "JOIN clients c "
 		+ "ON ll.client_id = c.id WHERE ";
@@ -1269,11 +1346,12 @@ protected String generate_filter_query(String[] filters) {
 			laundry_query += " AND ";
 		}
 	}
+	laundry_query += " ORDER BY lName, fName";
 	debug.print("Filter Query: " + laundry_query);
 		return laundry_query;
 	}
 
-protected void edit_laundry(String editType, int laundry_id, String client_id, String current_user) {
+protected void edit_laundry(String editType, int laundry_id, int client_id, String current_user) {
 	boolean proceed = true;
 	List date_bool;
 	String[] options = {"Add This Note", "No Note"};
@@ -1282,8 +1360,9 @@ protected void edit_laundry(String editType, int laundry_id, String client_id, S
 	boolean quit = (boolean) date_bool.get(1);
 	String chosenDate= (String) date_bool.get(0);
 	if (!quit) {
+		String s_client_id = String.valueOf(client_id);
 		debug.show_note_prompt("laundry_loads", String.valueOf(laundry_id), "Laundry Note", "Would you like to add a note to this laundry entry?", options, true);
-		debug.show_note_prompt("clients", client_id, "Client Note", "Would you like to add a note to this client's profile?", options, true); 
+		debug.show_note_prompt("clients", s_client_id, "Client Note", "Would you like to add a note to this client's profile?", options, true); 
 		if(editType == "pickup") {
 			System.out.println("pickingup");
 			//Check to make sure the laundry is marked as complete.
@@ -1307,7 +1386,7 @@ protected void edit_laundry(String editType, int laundry_id, String client_id, S
 			if (proceed) {
 				String mark_laundry_picked_up = "UPDATE laundry_loads SET pick_up = '" + chosenDate + "', pick_up_sig = '" + bWelcomeScreenWindow.getCurrUser() + "' WHERE id = " + laundry_id;
 				zDatabaseHandlerBackend.updateEntry(mark_laundry_picked_up);
-				eViewEditClientWindow.update_load_outstanding_flag(client_id);
+				eViewEditClientWindow.update_load_outstanding_flag(s_client_id);
 			} else {
 				debug.show_error("Action Canceled", "No edit will be made to the laundry load.");
 			}
@@ -1320,7 +1399,7 @@ protected void edit_laundry(String editType, int laundry_id, String client_id, S
 	}
 }
 
-protected void clear_laundry(String editType, int laundry_id, String client_id, String current_user) {
+protected void clear_laundry(String editType, int laundry_id, int client_id, String current_user) {
 	String messageType = "";
 	String column = null;
 	if (editType == "markComplete") {
@@ -1328,16 +1407,18 @@ protected void clear_laundry(String editType, int laundry_id, String client_id, 
 		column = "load_complete";
 	} else if (editType == "pickup") {
 		messageType = "pick-up date";
-		column = "pickup";
+		column = "pick_up";
 	}
 
 	int response = debug.show_warning("Clear " + messageType, "Are you sure you want to clear " + messageType + "?");
 	if (response == 0) {
 		//Yes, they want to clear
-		String clear_date = "UPDATE laundry_loads SET " + column + " = null, " + column + "_sig = " + bWelcomeScreenWindow.getCurrUser() + "' WHERE id = " + laundry_id;
+		String clear_date = "UPDATE laundry_loads SET " + column + " = null, " + column + "_sig = '" + bWelcomeScreenWindow.getCurrUser() + "' WHERE id = " + laundry_id;
+		debug.print(clear_date);
 		zDatabaseHandlerBackend.update(clear_date);
-		eViewEditClientWindow.update_load_outstanding_flag(client_id);
-		eViewEditClientWindow.update_eligible_today_flag(Integer.parseInt(client_id));
+		String s_client_id = String.valueOf(client_id);
+		eViewEditClientWindow.update_load_outstanding_flag(s_client_id);
+		eViewEditClientWindow.update_eligible_today_flag(client_id);
 		cMainDashboardWindow.update_table();
 	}
 }
@@ -1359,7 +1440,7 @@ protected void delete_laundry(int[] laundry_ids, String[] client_ids) {
 //ViewClientsPanel
 private static void create_clients_table(JScrollPane scrollPaneClients) {
 
-	String default_laundry_query = "SELECT id, CONCAT(fName, ' ', lName) AS Name FROM clients ORDER BY Name;";
+	String default_laundry_query = "SELECT id, CONCAT(lName, ', ', fName) AS Name FROM clients ORDER BY Name;";
 	create_clients_table(scrollPaneClients, default_laundry_query);
 }
 
@@ -1416,6 +1497,7 @@ private static DefaultTableModel buildTableModelClients(String laundry_query) th
 	//names of columns:
 	Vector<String> columnNames = new Vector<String>();
 	int colCount = metaData.getColumnCount();
+	debug.printNum(colCount);
 	for (int column = 1; column <= colCount; column++) {
 		System.out.println("COLUMN: " + metaData.getColumnName(column));
 		columnNames.add(metaData.getColumnName(column));
@@ -1444,6 +1526,7 @@ private static DefaultTableModel buildTableModelClients(String laundry_query) th
 
 private static void create_laundry_table(JScrollPane scrollPane, String laundry_query, boolean archive) {
 	if(!archive) {
+		debug.print("Not archive");
 		//Build the active laundry table.
 		try {
 			laundryTbl = new JTable(buildTableModel(laundry_query));
@@ -1451,6 +1534,7 @@ private static void create_laundry_table(JScrollPane scrollPane, String laundry_
 			e.printStackTrace();
 		}
 	} else {
+		debug.print("Why do we want archive???");
 		//Build the laundry table from the archives database.
 		try {
 			laundryTbl = new JTable(buildTableModel(laundry_query));
@@ -1499,12 +1583,12 @@ private static void create_laundry_table(JScrollPane scrollPane, String laundry_
 }
 
 private static void create_laundry_table(JScrollPane scrollPane) {
-	String default_laundry_query = "SELECT laundry_loads.id, CONCAT(fName, ' ', lName) AS Name, CONCAT(drop_off) AS 'Dropped Off On', CONCAT(load_complete) AS 'Completed On', CONCAT(pick_up) AS 'Picked Up On', CONCAT(laundry_loads.notes) AS 'Note', CONCAT(clients.id) AS 'Client ID' FROM laundry_loads JOIN clients ON laundry_loads.client_id = clients.id";
+	String default_laundry_query = "SELECT laundry_loads.id AS 'Load ID', CONCAT(lName, ', ', fName) AS Name, drop_off AS 'Dropped Off On', load_complete AS 'Completed On', pick_up AS 'Picked Up On', laundry_loads.notes AS 'Note', clients.id AS 'Client ID' FROM laundry_loads JOIN clients ON laundry_loads.client_id = clients.id WHERE pick_up IS NULL ORDER BY lName, fName";
 	create_laundry_table(scrollPane, default_laundry_query, false);
 }
 
 private static void create_laundry_archive_table(JScrollPane scrollPane) {
-	String default_laundry_archive_query = "SELECT laundry_loads_archive.id, CONCAT(fName, ' ', lName) AS Name, CONCAT(drop_off) AS 'Dropped Off On', CONCAT(load_complete) AS 'Completed On', CONCAT(pick_up) AS 'Picked Up On', CONCAT(laundry_loads_archive.notes) AS 'Note', CONCAT(clients_archive.id) AS 'Client ID' FROM laundry_loads_archive JOIN clients_archive ON laundry_loads_archive.client_id = clients_archive.id";
+	String default_laundry_archive_query = "SELECT laundry_loads_archive.id, CONCAT(fName, ' ', lName) AS Name, drop_off AS 'Dropped Off On', load_complete AS 'Completed On', pick_up AS 'Picked Up On', laundry_loads_archive.notes AS 'Note', clients_archive.id AS 'Client ID' FROM laundry_loads_archive JOIN clients_archive ON laundry_loads_archive.client_id = clients_archive.id";
 	create_laundry_table(scrollPane, default_laundry_archive_query, true);
 }
 
@@ -1516,7 +1600,7 @@ private static DefaultTableModel buildTableModel(String laundry_query) throws SQ
 	Vector<String> columnNames = new Vector<String>();
 	int colCount = metaData.getColumnCount();
 	for (int column = 1; column <= colCount; column++) {
-		columnNames.add(metaData.getColumnName(column));
+		columnNames.add(metaData.getColumnLabel(column));
 	}
 
 	//data of the table

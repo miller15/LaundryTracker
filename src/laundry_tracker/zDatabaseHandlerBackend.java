@@ -33,13 +33,14 @@ public class zDatabaseHandlerBackend {
 		while(!dbConnectionSuccess) {
 			try {
 				if( USER != null && PASS != null) {
+					Class.forName("com.mysql.cj.jdbc.Driver");
 					dbConn = DriverManager.getConnection(DB_URL, USER, PASS);
 					dbConnectionSuccess = true;
 				} else {
 					JOptionPane.showMessageDialog(aCreateAccountWindow.frmCreateaccount, "There was an error. Please try again or contact the developer.");
 					break;
 				}
-			} catch (SQLException e) {
+			} catch (SQLException | ClassNotFoundException e) {
 				e.printStackTrace();
 				//show_error("Database Error", e);
 				USER = (String)JOptionPane.showInputDialog(aCreateAccountWindow.frmCreateaccount, "You may have changed the database's username. Please enter the new db username (default was root)", "Username", JOptionPane.PLAIN_MESSAGE);
@@ -57,10 +58,11 @@ public class zDatabaseHandlerBackend {
 			System.out.println("HOST_URL: " + HOST_URL);
 			System.out.println("USER: " + USER);
 			System.out.println("PASS: " + PASS);
+			Class.forName("com.mysql.cj.jdbc.Driver");
 			connHost = DriverManager.getConnection(HOST_URL, USER, PASS);
 			//JOptionPane.showConfirmDialog(null, "Connected!!", "Connection Established", -1);
 			
-		} catch (SQLException e) {
+		} catch (SQLException | ClassNotFoundException e) {
 			String message = e.getMessage();
 			e.printStackTrace();
 			System.out.println("MESSAGE: " + message);
@@ -462,8 +464,8 @@ public class zDatabaseHandlerBackend {
 		java.sql.Date sqlDate = null;
 		try {
 			sqlDate = new java.sql.Date(dropOffDate.getTime());
-			String insertLaundryLoad = "INSERT INTO laundry_loads(client_id, drop_off, drop_off_signature, notes) VALUES ('"
-					+ client_id + "', '" + sqlDate + "', '" + drop_off_sig + "', '" + notes + "')";
+			String insertLaundryLoad = "INSERT INTO laundry_loads(client_id, drop_off_signature, notes) VALUES ('"
+			        + client_id + "', '" + drop_off_sig + "', '" + notes + "')";
 			System.out.println("************************");
 			System.out.println(insertLaundryLoad);
 			Connection dbConn = connect_db();
@@ -491,8 +493,8 @@ public class zDatabaseHandlerBackend {
 		java.sql.Date sqlDate = null;
 		try {
 			sqlDate = new java.sql.Date(dropOffDate.getTime());
-			String insertLaundryLoad = "INSERT INTO laundry_loads(client_id, drop_off, drop_off_signature) VALUES ('"
-					+ client_id + "', '" + sqlDate + "', '" + drop_off_sig + "')";
+			String insertLaundryLoad = "INSERT INTO laundry_loads(client_id, drop_off_signature) VALUES ('"
+			        + client_id + "', '" + drop_off_sig + "')";
 			Connection dbConn = connect_db();
 			Statement insert = null;
 			try {
@@ -616,7 +618,7 @@ public class zDatabaseHandlerBackend {
 	}
 	
 	public static ResultSet getClientNames() {
-		String clientNamesQuery = "SELECT concat(fName, ' ', lName) AS fullName FROM clients;";
+		String clientNamesQuery = "SELECT concat(lName, ', ', fName) AS fullName FROM clients ORDER BY lName, fName;";
 		ResultSet clientNames = select(clientNamesQuery);
 		return clientNames;
 	}
